@@ -1,0 +1,5 @@
+<resources>
+    <string name="gallery_name">JFGallery</string>
+    <string name="gallery_back">返回</string>
+    <string name="gallery_delete">删除</string>
+</resources>
