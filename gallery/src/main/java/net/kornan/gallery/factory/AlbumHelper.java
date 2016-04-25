@@ -19,7 +19,7 @@ import java.util.Map;
  * @author: kornan
  * @date: 2016-04-23 16:50
  */
-public class AlbumHelper implements AlbumInterface {
+public class AlbumHelper implements IAlbum {
 
     private final String TAG = getClass().getSimpleName();
     private Context context;

@@ -9,7 +9,7 @@ import java.util.List;
  * @author: kornan
  * @date: 2016-04-23 16:14
  */
-public interface AlbumInterface {
+public interface IAlbum {
     //获取所有图片
     List<ImageItem> getAllImagesItemList();
 
