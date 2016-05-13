@@ -6,11 +6,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import net.kornan.gallery.R;
-import net.kornan.gallery.factory.IGallery;
 
 /**
  * Created by KORNAN on 2016/4/25.
@@ -18,21 +17,21 @@ import net.kornan.gallery.factory.IGallery;
  * @author: kornan
  * @date: 2016-04-25 09:25
  */
-public class GalleryToolBar extends RelativeLayout implements IGallery {
+public class GalleryToolbar extends RelativeLayout {
+    private GalleryListener galleryListener;
+    private Toolbar toolbar;
 
-    Toolbar toolbar;
-
-    public GalleryToolBar(Context context) {
+    public GalleryToolbar(Context context) {
         super(context);
         init(context, null);
     }
 
-    public GalleryToolBar(Context context, AttributeSet attrs) {
+    public GalleryToolbar(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public GalleryToolBar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public GalleryToolbar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
@@ -43,36 +42,40 @@ public class GalleryToolBar extends RelativeLayout implements IGallery {
 //        typedArray.recycle();
 
         LayoutInflater.from(context).inflate(R.layout.toolbar, this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.gallery_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.base_toolbar_menu);
+        toolbar.setNavigationOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (galleryListener != null) {
+                    galleryListener.cancel();
+                }
+            }
+        });
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int menuItemId = item.getItemId();
-                if (menuItemId == R.id.action_search) {
-
-                } else if (menuItemId == R.id.action_notification) {
-
+                if (menuItemId == R.id.action_preview) {
+                    if (galleryListener != null) {
+                        galleryListener.showBigImage();
+                    }
+                } else if (menuItemId == R.id.action_complete) {
+                    if (galleryListener != null) {
+                        galleryListener.complete();
+                    }
                 }
                 return true;
             }
         });
-
-
+//        toolbar.getMenu().getItem(0);
     }
 
-    @Override
-    public void showBigImage() {
-
+    public void setGalleryListener(GalleryListener galleryListener) {
+        this.galleryListener = galleryListener;
     }
 
-    @Override
-    public void complete() {
-
-    }
-
-    @Override
-    public void cancel() {
-
+    public Toolbar getToolbar() {
+        return toolbar;
     }
 }

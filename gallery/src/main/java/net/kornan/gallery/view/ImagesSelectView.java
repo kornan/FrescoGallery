@@ -2,12 +2,17 @@ package net.kornan.gallery.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 
+import net.kornan.gallery.adapters.GalleryAdapter;
 import net.kornan.gallery.adapters.ImagesAdapter;
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.AlbumHelper;
@@ -25,10 +30,10 @@ import java.util.List;
 public class ImagesSelectView extends RelativeLayout {
 
     protected List<ImageItem> dataList;
-    protected GridView gridView;
-    protected ImagesAdapter adapter;
+    protected RecyclerView gridView;
+    protected GalleryAdapter adapter;
     private AlbumHelper helper;
-
+//    private CheckedBox Digital recording
     /**
      * 选择图片的最大值,0为无限制,默认为9
      */
@@ -50,6 +55,18 @@ public class ImagesSelectView extends RelativeLayout {
         init(context, attrs);
     }
 
+    public GalleryAdapter getAdapter() {
+        return adapter;
+    }
+
+    public void setCameraClickLinstener(CameraClickLinstener cameraClickLinstener) {
+        adapter.setCameraClickLinstener(cameraClickLinstener);
+    }
+
+    public List<ImageItem> getDataList() {
+        return dataList;
+    }
+
     public int getSelectMax() {
         return selectMax;
     }
@@ -61,29 +78,26 @@ public class ImagesSelectView extends RelativeLayout {
     private void init(Context context, AttributeSet attrs) {
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ImagesSelectView);
-        multiSelect = typedArray.getBoolean(R.styleable.ImagesSelectView_optionalMax, true);
+        multiSelect = typedArray.getBoolean(R.styleable.ImagesSelectView_multiSelect, true);
         selectMax = typedArray.getInt(R.styleable.ImagesSelectView_optionalMax, 9);
         typedArray.recycle();
 
         LayoutInflater.from(context).inflate(R.layout.gridview_images_layout, this);
-        gridView = (GridView) findViewById(R.id.image_grid);
-        gridView.setOnItemClickListener(null);
-
+        gridView = (RecyclerView) findViewById(R.id.image_grid);
         helper = AlbumHelper.getHelper();
         helper.init(getContext().getApplicationContext());
-//        dataList = helper.getImagesDefaultItemList();
         dataList = helper.getAllImagesItemList();
-        adapter = new ImagesAdapter(getContext(), dataList, selectMax);
+        gridView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect);
         gridView.setAdapter(adapter);
+        gridView.setItemAnimator(new DefaultItemAnimator());
     }
 
-    /**
-     * 滚动监听
-     *
-     * @param l 事件
-     */
-    public void setOnScrollListener(AbsListView.OnScrollListener l) {
-        gridView.setOnScrollListener(l);
+    public void refresh() {
+        if(helper!=null){
+            helper.refresh();
+            adapter.notifyDataSetChanged();
+        }
     }
 
 }

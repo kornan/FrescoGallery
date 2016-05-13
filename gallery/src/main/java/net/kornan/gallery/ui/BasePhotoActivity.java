@@ -129,7 +129,8 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
             Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
             return;
         }
-        mTakePhotoUri = MediaUtils.getOutputMediaFileUri(MediaUtils.MEDIA_TYPE_IMAGE, "" + getPackageName());
+//        mTakePhotoUri = MediaUtils.getOutputMediaFileUri(MediaUtils.MEDIA_TYPE_IMAGE, "" + getPackageName());
+        mTakePhotoUri = createTakePhotoUri();
         MediaUtils.takePhoto(this, mTakePhotoUri);
     }
 
@@ -180,7 +181,7 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
     }
 
     protected void startCutDown(Uri uri) {
-        mTakePhotoUri = MediaUtils.getOutputMediaFileUri(MediaUtils.MEDIA_TYPE_IMAGE, getPackageName());
+        mTakePhotoUri = createTakePhotoUri();
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.setDataAndType(uri, "image/*");
         intent.putExtra("crop", "true");
@@ -255,6 +256,15 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
         } else if (resultCode == RESULT_CANCELED) {
             photoCanceled();
         }
+    }
+
+    /**
+     * 如果没有提供路径，调用生成默认的Uri,用来存放图片,可重写此方法更改拍照路径
+     *
+     * @return
+     */
+    protected Uri createTakePhotoUri() {
+        return FileUtils.getOutputMediaFileUri(this, MediaUtils.MEDIA_TYPE_IMAGE, "" + getPackageName());
     }
 
     /**

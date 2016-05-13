@@ -101,7 +101,7 @@ public class ImageUtils {
     public static void resizeImageViewForScreen(SimpleDraweeView imageView, Uri uri, int width, int height) {
         GenericDraweeHierarchy hierarchy = imageView.getHierarchy();
         hierarchy.setActualImageScaleType(ScalingUtils.ScaleType.FOCUS_CROP);
-        Log.e("Controller","uri "+uri);
+//        Log.e("Controller","uri "+uri);
         ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
                 .setResizeOptions(new ResizeOptions(width, height))
                 .build();
@@ -111,13 +111,13 @@ public class ImageUtils {
                 .setControllerListener(new BaseControllerListener<ImageInfo>() {
                     @Override
                     public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
-                        Log.e("Controller","onFinalImageSet "+id);
+//                        Log.e("Controller","onFinalImageSet "+id);
                         super.onFinalImageSet(id, imageInfo, animatable);
                     }
 
                     @Override
                     public void onFailure(String id, Throwable throwable) {
-                        Log.e("Controller","onFailure "+id);
+//                        Log.e("Controller","onFailure "+id);
                         super.onFailure(id, throwable);
                     }
                 })

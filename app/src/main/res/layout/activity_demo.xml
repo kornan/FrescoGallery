@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:gallery="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".DemoActivity">
+
+    <net.kornan.gallery.view.GalleryToolbar
+        android:id="@+id/gallery_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <net.kornan.gallery.view.ImagesSelectView
+        gallery:optionalMax="5"
+        gallery:multiSelect="true"
+        android:id="@+id/imageSelect"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

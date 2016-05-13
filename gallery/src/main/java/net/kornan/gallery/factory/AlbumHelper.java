@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by KORNAN on 2016/4/23.
+ * 获取图片集
  *
  * @author: kornan
  * @date: 2016-04-23 16:50
@@ -41,6 +41,10 @@ public class AlbumHelper implements IAlbum {
      * 所有图片列表
      */
     List<ImageItem> imageItems = new ArrayList<>();
+    /**
+     * 是否已获取所有图片列表
+     */
+    private boolean hasBuildImagesItemList = false;
 
     private AlbumHelper() {
     }
@@ -66,31 +70,50 @@ public class AlbumHelper implements IAlbum {
 
     @Override
     public List<ImageItem> getAllImagesItemList() {
-        String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
-        Cursor cur;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
-                    MediaStore.Images.Media._ID + " desc");
-        } else {
-            cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
-                    MediaStore.Images.Media._ID + " desc");
-        }
-        if (cur != null && cur.moveToFirst()) {
-            int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-            int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            do {
-                String _id = cur.getString(photoIDIndex);
-                String path = cur.getString(photoPathIndex);
+        if (!hasBuildImagesItemList) {
+            String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
+            Cursor cur;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
+                        MediaStore.Images.Media._ID + " desc");
+            } else {
+                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
+                        MediaStore.Images.Media._ID + " desc");
+            }
+            if (cur != null && cur.moveToFirst()) {
+                int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                do {
+                    String _id = cur.getString(photoIDIndex);
+                    String path = cur.getString(photoPathIndex);
 
-                ImageItem imageItem = new ImageItem();
-                imageItem.imageId = _id;
-                imageItem.imagePath = path;
+                    ImageItem imageItem = new ImageItem();
+                    imageItem.imageId = _id;
+                    imageItem.imagePath = path;
 //                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
-                imageItems.add(imageItem);
+                    imageItems.add(imageItem);
 
-            } while (cur.moveToNext());
+                } while (cur.moveToNext());
+            }
+            addTakePhone();
+            hasBuildImagesItemList = true;
         }
         return imageItems;
+    }
+
+    public List<ImageItem> refresh() {
+        imageItems.clear();
+        hasBuildImagesItemList = false;
+        return getAllImagesItemList();
+    }
+
+    /**
+     * 添加第一项为拍照
+     */
+    private void addTakePhone() {
+        ImageItem item = new ImageItem();
+        item.type = ImageItem.Type.CAMERA;
+        imageItems.add(0, item);
     }
 
     @Override
@@ -205,6 +228,55 @@ public class AlbumHelper implements IAlbum {
             }
         }
         return data;
+    }
+
+    public static ImageItem getImageItem(final Context context, final Uri uri) {
+        if (null == uri) return null;
+        ImageItem imageItem = null;
+        final String scheme = uri.getScheme();
+        String data = null;
+        if (scheme == null)
+            data = uri.getPath();
+        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            data = uri.getPath();
+        } else {
+            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media._ID,MediaStore.Images.Media.DATA}, null, null, null);
+            if (null != cursor) {
+                if (cursor.moveToFirst()) {
+                    int photoIDIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                    int photoPathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    if (photoPathIndex > -1) {
+                        String _id = cursor.getString(photoIDIndex);
+                        String path = cursor.getString(photoPathIndex);
+
+                        imageItem = new ImageItem();
+                        imageItem.imageId = _id;
+                        imageItem.imagePath = path;
+//                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
+                    }
+                }
+                cursor.close();
+            }
+//            Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA}, MediaStore.Images.Media.DATA + " == '" + uri.getPath() + "'", null, null);
+//            if (null != cursor) {
+//                if (cursor.moveToFirst()) {
+//                    int photoIDIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+//                    int photoPathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//                    if (photoPathIndex > -1) {
+////                        data = cursor.getString(photoPathIndex);
+//                        String _id = cursor.getString(photoIDIndex);
+//                        String path = cursor.getString(photoPathIndex);
+//
+//                        imageItem = new ImageItem();
+//                        imageItem.imageId = _id;
+//                        imageItem.imagePath = path;
+////                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
+//                    }
+//                }
+//                cursor.close();
+//            }
+        }
+        return imageItem;
     }
 
     /**

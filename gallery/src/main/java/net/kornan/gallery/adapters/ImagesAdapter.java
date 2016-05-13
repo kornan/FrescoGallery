@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -28,25 +30,19 @@ import java.util.List;
 public class ImagesAdapter extends BaseAdapter {
 
     private List<ImageItem> dataList;
-//    private Handler mHandler;
+    //    private Handler mHandler;
     private Context context;
     private ArrayList<ImageItem> selectedItems;
     private int max;
 
     public ImagesAdapter(Context context, List<ImageItem> list, int max) {
+
         this.context = context;
         this.dataList = list;
 //        this.mHandler = mHandler;
         selectedItems = new ArrayList<>();
         this.max = max;
     }
-//    public ImagesAdapter(Context context, List<ImageItem> list, int max, Handler mHandler) {
-//        this.context = context;
-//        this.dataList = list;
-//        this.mHandler = mHandler;
-//        selectedItems = new ArrayList<>();
-//        this.max = max;
-//    }
 
     public ArrayList<ImageItem> getSelectedItems() {
         return selectedItems;
@@ -73,17 +69,30 @@ public class ImagesAdapter extends BaseAdapter {
         return position;
     }
 
-    class Holder {
+    class ImageHolder {
         SimpleDraweeView imageView;
         CheckBox checkBox;
     }
 
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        final Holder holder;
+    private View setCamera(final int position, View convertView, ViewGroup parent) {
+//        ImageItem item = dataList.get(position);
+        convertView = View.inflate(context, R.layout.gallery_take_phone_item, null);
+        ImageButton takePhone = (ImageButton) convertView
+                .findViewById(R.id.ibtn_take_phone);
+//        takePhone.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d("gallery_takePhone","拍照");
+//            }
+//        });
+        return convertView;
+    }
 
+    private View setImage(final int position, View convertView, ViewGroup parent) {
+        final ImageHolder holder;
+        ImageItem item = dataList.get(position);
         if (convertView == null) {
-            holder = new Holder();
+            holder = new ImageHolder();
             convertView = View.inflate(context, R.layout.item_image, null);
             holder.imageView = (SimpleDraweeView) convertView
                     .findViewById(R.id.imageView1);
@@ -91,23 +100,19 @@ public class ImagesAdapter extends BaseAdapter {
                     .findViewById(R.id.checkBox1);
             convertView.setTag(holder);
         } else {
-            holder = (Holder) convertView.getTag();
+            holder = (ImageHolder) convertView.getTag();
             holder.imageView.setImageURI(Uri.parse("res:///" + R.drawable.image_default_bg));
         }
-        ImageItem item = dataList.get(position);
+
         String path;
         if (!TextUtils.isEmpty(item.thumbnailPath)) {
-            path=item.thumbnailPath;
+            path = item.thumbnailPath;
             holder.imageView.setTag(item.thumbnailPath);
             setImageViewForCache(item.thumbnailPath, holder.imageView);
         } else {
-            path=item.imagePath;
+            path = item.imagePath;
             holder.imageView.setTag(item.imagePath);
             setImageViewForCache(item.imagePath, holder.imageView);
-        }
-
-        if(position<20){
-            setImageViewForCache(path, holder.imageView);
         }
 
         if (max > 1) {
@@ -160,9 +165,17 @@ public class ImagesAdapter extends BaseAdapter {
                 }
             });
         }
-
-
         return convertView;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ImageItem item = dataList.get(position);
+        if (item.type == ImageItem.Type.CAMERA) {
+            return setCamera(position, convertView, parent);
+        } else {
+            return setImage(position, convertView, parent);
+        }
     }
 
     private void setImageViewForCache(String imageUrl, SimpleDraweeView imageView) {

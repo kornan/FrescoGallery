@@ -6,19 +6,10 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/hello"
+    <Button
+        android:id="@+id/btn_select"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="相册"
-        android:visibility="gone" />
+        android:text="相册" />
 
-    <net.kornan.gallery.view.GalleryToolBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-
-    <net.kornan.gallery.view.ImagesSelectView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 </LinearLayout>

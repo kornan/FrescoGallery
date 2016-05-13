@@ -3,6 +3,7 @@
     package="net.kornan.demo">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
         android:name=".DemoApplication"
         android:allowBackup="true"
@@ -19,6 +20,7 @@
         </activity>
         <activity android:name="net.kornan.gallery.ui.ImagesActivity" />
         <activity android:name="net.kornan.gallery.ui.GalleryPreviewActivity" />
+        <activity android:name=".DemoActivity"></activity>
     </application>
 
 </manifest>

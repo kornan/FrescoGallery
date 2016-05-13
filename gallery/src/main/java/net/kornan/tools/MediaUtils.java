@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -21,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- *
  * @author: kornan
  * @date: 2016-03-03 09:59
  */
@@ -62,63 +62,6 @@ public class MediaUtils {
     public static final int PREVIEW_IMAGE_ACTIVITY_REQUEST_CODE = 0x000008;
 
     /**
-     * 获取本地文件Uri
-     *
-     * @param type MEDIA_TYPE_IMAGE or MEDIA_TYPE_VIDEO
-     * @param name 名称
-     * @return Uri
-     */
-    public static Uri getOutputMediaFileUri(int type, String name) {
-        return Uri.fromFile(getOutputMediaFile(type, name));
-    }
-
-    /**
-     * 获取本地文件File
-     *
-     * @param type
-     * @return
-     */
-    private static File getOutputMediaFile(int type, String name) {
-        File mediaStorageDir = null;
-        try {
-            mediaStorageDir = new File(
-                    Environment
-                            .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                    name);
-            Log.d("TAG", "Successfully created mediaStorageDir: "
-                    + mediaStorageDir);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("TAG", "Error in Creating mediaStorageDir: "
-                    + mediaStorageDir);
-        }
-
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d("TAG",
-                        "failed to create directory, check if you have the WRITE_EXTERNAL_STORAGE permission");
-                return null;
-            }
-        }
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                .format(new Date());
-        File mediaFile;
-        if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
-        } else if (type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "VID_" + timeStamp + ".mp4");
-        } else {
-            return null;
-        }
-
-        return mediaFile;
-    }
-
-    /**
      * 跳转Activity
      *
      * @param cls    class
@@ -153,7 +96,7 @@ public class MediaUtils {
     public static void takePhoto(Activity activity, Uri fileUri) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (fileUri == null)
-            fileUri = MediaUtils.getOutputMediaFileUri(MediaUtils.MEDIA_TYPE_IMAGE, "" + activity.getPackageName());
+            fileUri = FileUtils.getOutputMediaFileUri(activity,MediaUtils.MEDIA_TYPE_IMAGE, "" + activity.getPackageName(),null);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
         activity.startActivityForResult(intent, MediaUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
@@ -194,7 +137,6 @@ public class MediaUtils {
                 .getMetrics(displaysMetrics);
         return displaysMetrics;
     }
-
 
 
     /**

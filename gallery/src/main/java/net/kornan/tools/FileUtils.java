@@ -1,10 +1,15 @@
 package net.kornan.tools;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -28,16 +33,85 @@ public class FileUtils {
 
     /**
      * 获取应用默认目录
+     *
      * @param context
      * @return
      */
-    public static File getInitPackageFolder(Context context){
-        String dir=Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+context.getPackageName();
-        File file=new File(dir);
+    public static File getInitPackageFolder(Context context) {
+        String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + context.getPackageName();
+        File file = new File(dir);
 
         return file;
     }
 
+    /**
+     * 获取本地文件Uri
+     *
+     * @param type MEDIA_TYPE_IMAGE or MEDIA_TYPE_VIDEO
+     * @param name 名称
+     * @return Uri
+     */
+    public static Uri getOutputMediaFileUri(Context context, int type, String name, String folder) {
+        return Uri.fromFile(getOutputMediaFile(context, type, name, folder));
+    }
+
+    public static Uri getOutputMediaFileUri(Context context, int type, String name) {
+        return getOutputMediaFileUri(context, type, name, null);
+    }
+
+    /**
+     * 获取本地文件File
+     *
+     * @param type
+     * @return
+     */
+    private static File getOutputMediaFile(Context context, int type, String name, String folder) {
+        File mediaStorageDir = null;
+        try {
+            if (!TextUtils.isEmpty(folder)) {
+                mediaStorageDir = new File(folder);
+            } else {
+                mediaStorageDir = new File(
+                        Environment
+                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                        context.getPackageName());
+            }
+            Log.d("TAG", "Successfully created mediaStorageDir: "
+                    + mediaStorageDir);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("TAG", "Error in Creating mediaStorageDir: "
+                    + mediaStorageDir);
+        }
+
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d("TAG",
+                        "failed to create directory, check if you have the WRITE_EXTERNAL_STORAGE permission");
+                return null;
+            }
+        }
+
+        File mediaFile;
+        if (!TextUtils.isEmpty(name)) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + name);
+        } else {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    .format(new Date());
+            if (type == MediaUtils.MEDIA_TYPE_IMAGE) {
+                mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                        + "IMG_" + timeStamp + ".jpg");
+            } else if (type == MediaUtils.MEDIA_TYPE_VIDEO) {
+                mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                        + "VID_" + timeStamp + ".mp4");
+            } else {
+                return null;
+            }
+        }
+
+
+        return mediaFile;
+    }
 
     /**
      * 获取SD大小

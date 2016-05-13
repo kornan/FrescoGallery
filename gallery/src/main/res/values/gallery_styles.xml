@@ -3,5 +3,6 @@
 
     <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Light">
         <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
     </style>
 </resources>

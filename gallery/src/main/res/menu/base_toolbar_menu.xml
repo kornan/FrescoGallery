@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_notification"
+        android:id="@+id/action_preview"
         android:title="预览"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_search"
+        android:id="@+id/action_complete"
         android:title="完成"
         app:showAsAction="ifRoom" />
 

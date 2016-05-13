@@ -1,11 +1,9 @@
-package net.kornan.gallery.factory;
+package net.kornan.gallery.view;
 
 /**
- *
- * @author: kornan
- * @date: 2016-04-25 09:12
+ * Created by kornan on 16/5/10.
  */
-public interface IGallery {
+public interface GalleryListener {
     //预览
     void showBigImage();
 
