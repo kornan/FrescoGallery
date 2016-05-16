@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Gallery For Fresco</string>
+    <string name="gallery_atlas">图集</string>
 </resources>

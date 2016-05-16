@@ -1,13 +1,17 @@
 package net.kornan.demo;
 
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import net.kornan.gallery.factory.AlbumHelper;
@@ -16,6 +20,7 @@ import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.ui.GalleryPreviewActivity;
 import net.kornan.gallery.view.CameraClickLinstener;
 import net.kornan.gallery.view.GalleryListener;
+import net.kornan.gallery.view.GalleryPopupWindow;
 import net.kornan.gallery.view.GalleryToolbar;
 import net.kornan.gallery.view.ImagesSelectView;
 import net.kornan.tools.FileUtils;
@@ -29,7 +34,7 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener, MediaScannerConnection.MediaScannerConnectionClient {
+public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener {
 
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
 
@@ -39,8 +44,16 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     @InjectView(R.id.gallery_toolbar)
     GalleryToolbar galleryToolbar;
 
+    @InjectView(R.id.btn_menu)
+    Button btnMenu;
+
+    @InjectView(R.id.rl_bottm)
+    View rl_bottm;
+
     protected Uri mTakePhotoUri;
     protected MediaScannerConnection msc;
+    protected GalleryPopupWindow galleryPopupWindow;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +61,20 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
         ButterKnife.inject(this);
         galleryToolbar.setGalleryListener(this);
         imageSelect.setCameraClickLinstener(this);
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (galleryPopupWindow == null) {
+                    galleryPopupWindow = new GalleryPopupWindow().initGallery(DemoActivity.this);
+                }
+                Toast.makeText(v.getContext(), "" + galleryPopupWindow.isShowing(), Toast.LENGTH_SHORT).show();
+                if (galleryPopupWindow.isShowing()) {
+                    galleryPopupWindow.dismiss();
+                } else {
+                    galleryPopupWindow.show(v);
+                }
+            }
+        });
     }
 
     @Override
@@ -59,7 +86,7 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
             startActivity(intent);
         } else {
-            Toast.makeText(this, "你还没有选择图片！", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "请选择图片！", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -134,8 +161,8 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     public void takePhotoResult(Intent data, Uri photoUri) {
 //        try {
 //            MediaStore.Images.Media.insertImage(getContentResolver(), photoUri.getPath(), "title", "description");
-            msc = new MediaScannerConnection(this, this);
-            msc.connect();
+        msc = new MediaScannerConnection(this, this);
+        msc.connect();
 //        } catch (FileNotFoundException e) {
 //            e.printStackTrace();
 //        }
@@ -150,15 +177,21 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
 
         final ImageItem imageItem = AlbumHelper.getImageItem(this, uri);
         if (imageItem != null) {
+
             if (imageSelect.getDataList().size() > 1) {
                 imageSelect.getDataList().add(1, imageItem);
             } else {
                 imageSelect.getDataList().add(imageItem);
             }
+            imageItem.isSelected = true;
+            imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size();
+            imageSelect.getAdapter().getSelectedItems().add(imageItem);
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    imageSelect.getAdapter().notifyItemInserted(1);
+                    imageSelect.getAdapter().refreshIndex();
+//                    imageSelect.getAdapter().notifyItemInserted(1);
                 }
             });
 

@@ -68,38 +68,38 @@ public class AlbumHelper implements IAlbum {
         }
     }
 
-    @Override
-    public List<ImageItem> getAllImagesItemList() {
-        if (!hasBuildImagesItemList) {
-            String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
-            Cursor cur;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
-                        MediaStore.Images.Media._ID + " desc");
-            } else {
-                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
-                        MediaStore.Images.Media._ID + " desc");
-            }
-            if (cur != null && cur.moveToFirst()) {
-                int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-                int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                do {
-                    String _id = cur.getString(photoIDIndex);
-                    String path = cur.getString(photoPathIndex);
-
-                    ImageItem imageItem = new ImageItem();
-                    imageItem.imageId = _id;
-                    imageItem.imagePath = path;
-//                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
-                    imageItems.add(imageItem);
-
-                } while (cur.moveToNext());
-            }
-            addTakePhone();
-            hasBuildImagesItemList = true;
-        }
-        return imageItems;
-    }
+//    @Override
+//    public List<ImageItem> getAllImagesItemList() {
+//        if (!hasBuildImagesItemList) {
+//            String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
+//            Cursor cur;
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+//                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
+//                        MediaStore.Images.Media._ID + " desc");
+//            } else {
+//                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
+//                        MediaStore.Images.Media._ID + " desc");
+//            }
+//            if (cur != null && cur.moveToFirst()) {
+//                int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+//                int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//                do {
+//                    String _id = cur.getString(photoIDIndex);
+//                    String path = cur.getString(photoPathIndex);
+//
+//                    ImageItem imageItem = new ImageItem();
+//                    imageItem.imageId = _id;
+//                    imageItem.imagePath = path;
+////                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
+//                    imageItems.add(imageItem);
+//
+//                } while (cur.moveToNext());
+//            }
+//            addTakePhone();
+//            hasBuildImagesItemList = true;
+//        }
+//        return imageItems;
+//    }
 
     public List<ImageItem> refresh() {
         imageItems.clear();
@@ -111,22 +111,65 @@ public class AlbumHelper implements IAlbum {
      * 添加第一项为拍照
      */
     private void addTakePhone() {
+        if (imageItems.size() > 0 && imageItems.get(0).type == ImageItem.Type.CAMERA) {
+            return;
+        }
         ImageItem item = new ImageItem();
         item.type = ImageItem.Type.CAMERA;
         imageItems.add(0, item);
     }
 
+    /**
+     * 移除第一项拍照
+     *
+     * @return
+     */
+    private void removeTakePhone() {
+        if (imageItems.size() > 0 && imageItems.get(0).type == ImageItem.Type.CAMERA) {
+            imageItems.remove(0);
+        }
+    }
+
+    @Override
+    public List<ImageItem> getAllImagesItemList() {
+        if (!hasBuildImagesItemList) {
+            buildImagesBucketList();
+            return imageItems;
+        } else {
+            return imageItems;
+        }
+    }
+
     @Override
     public HashMap<String, ImageBucket> getAllImagesBucketList() {
-// 构造相册索引
+        if (!hasBuildImagesItemList) {
+            buildImagesBucketList();
+            return bucketList;
+        } else {
+            return bucketList;
+        }
+    }
+
+
+    private void buildImagesBucketList() {
+
         String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.PICASA_ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.TITLE,
                 MediaStore.Images.Media.SIZE, MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
-        // 得到一个游标
-        Cursor cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
-                null);
+        Cursor cur;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+//            cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
+//                    MediaStore.Images.Media._ID + " desc");
+//        } else {
+//            cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
+//                    MediaStore.Images.Media._ID + " desc");
+//        }
+
+        //        Cursor cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,null);
+        cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "width >=300 and height>=300", null,
+                MediaStore.Images.Media._ID + " desc");
+
         if (cur != null && cur.moveToFirst()) {
-            // 获取指定列的索引
             int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
             int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             int photoNameIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
@@ -136,7 +179,7 @@ public class AlbumHelper implements IAlbum {
                     .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
             int bucketIdIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
             int picasaIdIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.PICASA_ID);
-            // 获取图片总数
+
             int totalNum = cur.getCount();
 
             do {
@@ -168,67 +211,94 @@ public class AlbumHelper implements IAlbum {
                 imageItem.imagePath = path;
 //                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
                 bucket.imageList.add(imageItem);
+                imageItems.add(imageItem);
 
             } while (cur.moveToNext());
         }
-        return bucketList;
+        addTakePhone();
+        hasBuildImagesItemList = true;
+//        return bucketList;
     }
 
     @Override
     public HashMap<String, String> getAllThumbnail() {
-        String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID,
-                MediaStore.Images.Thumbnails.DATA};
-        Cursor cur = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection,
-                null, null, null);
-
-        if (cur != null && cur.moveToFirst()) {
-            int _id;
-            int image_id;
-            String image_path;
-            int _idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails._ID);
-            int image_idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
-            int dataColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
-
-            do {
-                _id = cur.getInt(_idColumn);
-                image_id = cur.getInt(image_idColumn);
-                image_path = cur.getString(dataColumn);
-
-                thumbnailList.put("" + image_id, image_path);
-            } while (cur.moveToNext());
-        }
-        return thumbnailList;
+        return null;
     }
 
     /**
-     * Try to return the absolute file path from the given Uri
+     * 得到图片集
      *
-     * @param context
-     * @param uri
-     * @return the file path or null
+     * @return
      */
-    public static String getRealFilePath(final Context context, final Uri uri) {
-        if (null == uri) return null;
-        final String scheme = uri.getScheme();
-        String data = null;
-        if (scheme == null)
-            data = uri.getPath();
-        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-            data = uri.getPath();
-        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
-            if (null != cursor) {
-                if (cursor.moveToFirst()) {
-                    int index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                    if (index > -1) {
-                        data = cursor.getString(index);
-                    }
-                }
-                cursor.close();
-            }
+    public List<ImageBucket> getImagesBucketList() {
+        if (!hasBuildImagesBucketList) {
+            getAllImagesBucketList();
         }
-        return data;
+        List<ImageBucket> tmpList = new ArrayList<ImageBucket>();
+        Iterator<Map.Entry<String, ImageBucket>> itr = bucketList.entrySet()
+                .iterator();
+        while (itr.hasNext()) {
+            Map.Entry<String, ImageBucket> entry = (Map.Entry<String, ImageBucket>) itr
+                    .next();
+            tmpList.add(entry.getValue());
+        }
+        return tmpList;
     }
+
+//    @Override
+//    public HashMap<String, String> getAllThumbnail() {
+//        String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID,
+//                MediaStore.Images.Thumbnails.DATA};
+//        Cursor cur = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection,
+//                null, null, null);
+//
+//        if (cur != null && cur.moveToFirst()) {
+//            int _id;
+//            int image_id;
+//            String image_path;
+//            int _idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails._ID);
+//            int image_idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
+//            int dataColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
+//
+//            do {
+//                _id = cur.getInt(_idColumn);
+//                image_id = cur.getInt(image_idColumn);
+//                image_path = cur.getString(dataColumn);
+//
+//                thumbnailList.put("" + image_id, image_path);
+//            } while (cur.moveToNext());
+//        }
+//        return thumbnailList;
+//    }
+//    /**
+//     * Try to return the absolute file path from the given Uri
+//     *
+//     * @param context
+//     * @param uri
+//     * @return the file path or null
+//     */
+//    public static String getRealFilePath(final Context context, final Uri uri) {
+//        if (null == uri) return null;
+//        final String scheme = uri.getScheme();
+//        String data = null;
+//        if (scheme == null)
+//            data = uri.getPath();
+//        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+//            data = uri.getPath();
+//        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+//            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+//            if (null != cursor) {
+//                if (cursor.moveToFirst()) {
+//                    int index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+//                    if (index > -1) {
+//                        data = cursor.getString(index);
+//                    }
+//                }
+//                cursor.close();
+//            }
+//        }
+//        return data;
+//    }
 
     public static ImageItem getImageItem(final Context context, final Uri uri) {
         if (null == uri) return null;
@@ -240,7 +310,7 @@ public class AlbumHelper implements IAlbum {
         else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
             data = uri.getPath();
         } else {
-            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media._ID,MediaStore.Images.Media.DATA}, null, null, null);
+            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA}, null, null, null);
             if (null != cursor) {
                 if (cursor.moveToFirst()) {
                     int photoIDIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
@@ -279,45 +349,45 @@ public class AlbumHelper implements IAlbum {
         return imageItem;
     }
 
-    /**
-     * 得到原始图像路径
-     *
-     * @param image_id
-     * @return
-     */
-    public String getOriginalImagePath(String image_id) {
-        String path = null;
-        String[] projection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
-        Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-                MediaStore.Images.Media._ID + "=" + image_id, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-
-        }
-        return path;
-    }
-
-    /**
-     * 重置选中项
-     */
-    public void reset() {
-        Iterator<Map.Entry<String, ImageBucket>> itr = bucketList.entrySet()
-                .iterator();
-        while (itr.hasNext()) {
-            Map.Entry<String, ImageBucket> entry = itr
-                    .next();
-            ImageBucket bucket = entry.getValue();
-            Log.d(TAG, entry.getKey() + ", " + bucket.bucketName + ", "
-                    + bucket.count + " ---------- ");
-            for (int i = 0; i < bucket.imageList.size(); ++i) {
-                ImageItem image = bucket.imageList.get(i);
-                image.isSelected = false;
-                Log.d(TAG, "----- " + image.imageId + ", " + image.imagePath
-                        + ", " + image.thumbnailPath);
-            }
-        }
-    }
+//    /**
+//     * 得到原始图像路径
+//     *
+//     * @param image_id
+//     * @return
+//     */
+//    public String getOriginalImagePath(String image_id) {
+//        String path = null;
+//        String[] projection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
+//        Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
+//                MediaStore.Images.Media._ID + "=" + image_id, null, null);
+//        if (cursor != null) {
+//            cursor.moveToFirst();
+//            path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+//
+//        }
+//        return path;
+//    }
+//
+//    /**
+//     * 重置选中项
+//     */
+//    public void reset() {
+//        Iterator<Map.Entry<String, ImageBucket>> itr = bucketList.entrySet()
+//                .iterator();
+//        while (itr.hasNext()) {
+//            Map.Entry<String, ImageBucket> entry = itr
+//                    .next();
+//            ImageBucket bucket = entry.getValue();
+//            Log.d(TAG, entry.getKey() + ", " + bucket.bucketName + ", "
+//                    + bucket.count + " ---------- ");
+//            for (int i = 0; i < bucket.imageList.size(); ++i) {
+//                ImageItem image = bucket.imageList.get(i);
+//                image.isSelected = false;
+//                Log.d(TAG, "----- " + image.imageId + ", " + image.imagePath
+//                        + ", " + image.thumbnailPath);
+//            }
+//        }
+//    }
 
     /**
      * 取消选中项

@@ -72,6 +72,8 @@ public class ImageViewHolder extends GalleryViewHolder {
         checkBox.setChecked(item.isSelected);
         if(item.isSelected){
             checkBox.setText(String.valueOf(item.selectedIndex));
+        }else{
+            checkBox.setText("");
         }
 
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -89,13 +91,11 @@ public class ImageViewHolder extends GalleryViewHolder {
                     }
                     item.selectedIndex = adapter.getSelectedItems().size();
                     adapter.getSelectedItems().add(item);
-                    checkBox.setText(String.valueOf(item.selectedIndex));
                 } else {
                     item.selectedIndex=-1;
-                    checkBox.setText("");
                     adapter.getSelectedItems().remove(item);
                 }
-                refreshIndex();
+                adapter.refreshIndex();
                 item.isSelected = isChecked;
             }
         });
@@ -104,17 +104,6 @@ public class ImageViewHolder extends GalleryViewHolder {
         } else {
             checkBox.setVisibility(View.VISIBLE);
         }
-    }
-
-    /**
-     * 刷新顺序
-     */
-    private void refreshIndex() {
-        for (int i = 0; i < adapter.getSelectedItems().size(); i++) {
-            ImageItem item = adapter.getSelectedItems().get(i);
-            item.selectedIndex = i+1;
-        }
-        adapter.notifyDataSetChanged();
     }
 
     @Override

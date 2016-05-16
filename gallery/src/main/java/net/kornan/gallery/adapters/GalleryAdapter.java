@@ -91,4 +91,16 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         }
         return count;
     }
+
+    /**
+     * 刷新顺序
+     */
+    public void refreshIndex() {
+        for (int i = 0; i < getSelectedItems().size(); i++) {
+            ImageItem item = getSelectedItems().get(i);
+            item.selectedIndex = i+1;
+        }
+        notifyDataSetChanged();
+    }
+
 }

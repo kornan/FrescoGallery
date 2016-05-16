@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
@@ -30,6 +31,11 @@ public class CameraViewHolder extends GalleryViewHolder {
 
     @Override
     public void onClick(View v) {
+        if (adapter.getSelectedItems().size() >= adapter.getMax()) {
+            Toast.makeText(context,
+                    "最多选择" + adapter.getMax() + "张图片", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (adapter.cameraClickLinstener != null) {
             adapter.cameraClickLinstener.cameraClick(itemView);
         }

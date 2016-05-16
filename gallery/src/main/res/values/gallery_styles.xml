@@ -5,4 +5,10 @@
         <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>
         <item name="actionMenuTextColor">@android:color/white</item>
     </style>
+
+    <style name="gallery_popup_window_anim_style">
+        <item name="android:windowEnterAnimation">@anim/gallery_popup_show</item>
+        <item name="android:windowExitAnimation">@anim/gallery_popup_hide</item>
+    </style>
+
 </resources>
