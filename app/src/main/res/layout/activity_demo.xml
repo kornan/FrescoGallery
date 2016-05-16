@@ -16,6 +16,7 @@
     <net.kornan.gallery.view.ImagesSelectView
         gallery:optionalMax="5"
         gallery:multiSelect="true"
+        gallery:isDigit="true"
         android:id="@+id/imageSelect"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

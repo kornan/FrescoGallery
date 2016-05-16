@@ -15,6 +15,7 @@ import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.ui.GalleryPreviewActivity;
+import net.kornan.gallery.view.GalleryCheckView;
 
 import java.util.ArrayList;
 
@@ -24,14 +25,19 @@ import java.util.ArrayList;
  */
 public class ImageViewHolder extends GalleryViewHolder {
     public SimpleDraweeView imageView;
-    public CheckBox checkBox;
+    public GalleryCheckView checkBox;
 
-    public ImageViewHolder(Context context, GalleryAdapter adapter, View itemView) {
+    public ImageViewHolder(Context context, GalleryAdapter adapter, View itemView, boolean isDigit) {
         super(context, adapter, itemView);
         imageView = (SimpleDraweeView) itemView
                 .findViewById(R.id.imageView1);
-        checkBox = (CheckBox) itemView
+        checkBox = (GalleryCheckView) itemView
                 .findViewById(R.id.checkBox1);
+        if (isDigit) {
+            checkBox.setBackgroundResource(R.drawable.gallery_checkbox_digit_icon);
+        } else {
+            checkBox.setBackgroundResource(R.drawable.checkbox_icon);
+        }
 
     }
 
@@ -48,7 +54,6 @@ public class ImageViewHolder extends GalleryViewHolder {
             setImageViewForCache(item.imagePath, imageView);
         }
 
-//        if (max > 1) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,6 +70,10 @@ public class ImageViewHolder extends GalleryViewHolder {
         });
         checkBox.setOnCheckedChangeListener(null);
         checkBox.setChecked(item.isSelected);
+        if(item.isSelected){
+            checkBox.setText(String.valueOf(item.selectedIndex));
+        }
+
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
@@ -78,31 +87,34 @@ public class ImageViewHolder extends GalleryViewHolder {
                         checkBox.setChecked(false);
                         return;
                     }
+                    item.selectedIndex = adapter.getSelectedItems().size();
                     adapter.getSelectedItems().add(item);
+                    checkBox.setText(String.valueOf(item.selectedIndex));
                 } else {
+                    item.selectedIndex=-1;
+                    checkBox.setText("");
                     adapter.getSelectedItems().remove(item);
                 }
+                refreshIndex();
                 item.isSelected = isChecked;
             }
         });
-        if(!adapter.isMultiSelect()){
+        if (!adapter.isMultiSelect()) {
             checkBox.setVisibility(View.GONE);
-        }else{
+        } else {
             checkBox.setVisibility(View.VISIBLE);
         }
-//        }
-// else {
-//            holder.checkBox.setVisibility(View.GONE);
-//            holder.imageView.setOnClickListener(new View.OnClickListener() {
-//
-//                @Override
-//                public void onClick(View v) {
-//                    // TODO Auto-generated method stub
-//                    selectedItems.add(dataList.get(position));
-////                    mHandler.sendEmptyMessage(1);
-//                }
-//            });
-//        }
+    }
+
+    /**
+     * 刷新顺序
+     */
+    private void refreshIndex() {
+        for (int i = 0; i < adapter.getSelectedItems().size(); i++) {
+            ImageItem item = adapter.getSelectedItems().get(i);
+            item.selectedIndex = i+1;
+        }
+        adapter.notifyDataSetChanged();
     }
 
     @Override

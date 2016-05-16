@@ -87,7 +87,6 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
 
     @Override
     public void cameraClick(View view) {
-        Toast.makeText(this, "拍照", Toast.LENGTH_SHORT).show();
         startTakePhoto();
     }
 
@@ -133,13 +132,13 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
      * @param photoUri
      */
     public void takePhotoResult(Intent data, Uri photoUri) {
-        try {
-            MediaStore.Images.Media.insertImage(getContentResolver(), photoUri.getPath(), "title", "description");
+//        try {
+//            MediaStore.Images.Media.insertImage(getContentResolver(), photoUri.getPath(), "title", "description");
             msc = new MediaScannerConnection(this, this);
             msc.connect();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
 

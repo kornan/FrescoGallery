@@ -39,6 +39,7 @@ public class ImagesSelectView extends RelativeLayout {
      */
     private int selectMax = 9;
     private boolean multiSelect = true;
+    private boolean isDigit=true;
 
     public ImagesSelectView(Context context) {
         super(context);
@@ -79,6 +80,7 @@ public class ImagesSelectView extends RelativeLayout {
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ImagesSelectView);
         multiSelect = typedArray.getBoolean(R.styleable.ImagesSelectView_multiSelect, true);
+        isDigit = typedArray.getBoolean(R.styleable.ImagesSelectView_isDigit,true);
         selectMax = typedArray.getInt(R.styleable.ImagesSelectView_optionalMax, 9);
         typedArray.recycle();
 
@@ -88,7 +90,7 @@ public class ImagesSelectView extends RelativeLayout {
         helper.init(getContext().getApplicationContext());
         dataList = helper.getAllImagesItemList();
         gridView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect);
+        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect,isDigit);
         gridView.setAdapter(adapter);
         gridView.setItemAnimator(new DefaultItemAnimator());
     }

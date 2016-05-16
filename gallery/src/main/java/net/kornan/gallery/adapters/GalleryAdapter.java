@@ -2,7 +2,6 @@ package net.kornan.gallery.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +24,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
     private ArrayList<ImageItem> selectedItems;
     private int max;
     private boolean multiSelect;
+    private boolean isDigit;
 
     public CameraClickLinstener cameraClickLinstener;
 
-    public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect) {
+    public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect,boolean isDigit) {
         selectedItems = new ArrayList<>();
         this.context = context;
         this.dataList = list;
         this.max = max;
         this.multiSelect = multiSelect;
+        this.isDigit=isDigit;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
             return new CameraViewHolder(context, this, itemLayout);
         } else {
             View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, null);
-            return new ImageViewHolder(context, this, itemLayout);
+            return new ImageViewHolder(context, this, itemLayout,isDigit);
         }
     }
 
@@ -53,6 +54,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
 
     public boolean isMultiSelect() {
         return multiSelect;
+    }
+
+    public boolean isDigit() {
+        return isDigit;
     }
 
     public int getMax() {

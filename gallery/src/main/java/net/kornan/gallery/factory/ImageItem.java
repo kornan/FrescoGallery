@@ -32,6 +32,11 @@ public class ImageItem implements Serializable {
     public boolean isSelected = false;
 
     /**
+     * 选择的顺序
+     */
+    public int selectedIndex=-1;
+
+    /**
      * item类型：CAMERA为拍照,默认为IMAGE
      */
     public Type type=Type.IMAGE;
