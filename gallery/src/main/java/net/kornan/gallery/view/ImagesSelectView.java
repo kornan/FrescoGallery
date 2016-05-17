@@ -40,8 +40,9 @@ public class ImagesSelectView extends RelativeLayout {
      */
     private int selectMax = 9;
     private boolean multiSelect = true;
-    private boolean isDigit=true;
-    private List<ImageItem> selectedItems=new ArrayList<>();
+    private boolean isDigit = true;
+    private List<ImageItem> selectedItems = new ArrayList<>();
+
     public ImagesSelectView(Context context) {
         super(context);
         init(context, null);
@@ -68,25 +69,29 @@ public class ImagesSelectView extends RelativeLayout {
     public List<ImageItem> getDataList() {
         return dataList;
     }
-    public List<ImageItem> getSelectedItems(){
+
+    public List<ImageItem> getSelectedItems() {
         return selectedItems;
     }
-    public void setSelectedItems(List<ImageItem> selectedItems){
-        this.selectedItems=selectedItems;
+
+    public void setSelectedItems(List<ImageItem> selectedItems) {
+        this.selectedItems = selectedItems;
     }
+
     public int getSelectMax() {
         return selectMax;
     }
 
     public void setSelectMax(int selectMax) {
         this.selectMax = selectMax;
+        adapter.setMax(selectMax);
     }
 
     private void init(Context context, AttributeSet attrs) {
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ImagesSelectView);
         multiSelect = typedArray.getBoolean(R.styleable.ImagesSelectView_multiSelect, true);
-        isDigit = typedArray.getBoolean(R.styleable.ImagesSelectView_isDigit,true);
+        isDigit = typedArray.getBoolean(R.styleable.ImagesSelectView_isDigit, true);
         selectMax = typedArray.getInt(R.styleable.ImagesSelectView_optionalMax, 9);
         typedArray.recycle();
 
@@ -96,16 +101,23 @@ public class ImagesSelectView extends RelativeLayout {
         helper.init(getContext().getApplicationContext());
         dataList = helper.getAllImagesItemList();
         gridView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect,isDigit,selectedItems);
+        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect, isDigit, selectedItems);
         gridView.setAdapter(adapter);
         gridView.setItemAnimator(new DefaultItemAnimator());
     }
 
     public void refresh() {
-        if(helper!=null){
+        if (helper != null) {
             helper.refresh();
             adapter.notifyDataSetChanged();
         }
     }
 
+    public void destroy() {
+        if (helper != null) {
+            helper.reset(adapter.getSelectedItems());
+            selectedItems.clear();
+            helper = null;
+        }
+    }
 }

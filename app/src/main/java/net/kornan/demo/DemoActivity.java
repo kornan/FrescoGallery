@@ -58,17 +58,17 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     protected MediaScannerConnection msc;
     protected GalleryPopupWindow galleryPopupWindow;
     protected List<ImageItem> selectedItems;
-
+    protected int selectMax;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_demo);
         ButterKnife.inject(this);
         galleryToolbar.setGalleryListener(this);
         imageSelect.setCameraClickLinstener(this);
-
+        selectMax = getIntent().getIntExtra(SELECT_IMAGE_KEY, 9);
+        imageSelect.setSelectMax(selectMax);
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,11 +83,12 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             }
         });
 
-        if(selectedItems==null){
-            selectedItems = imageSelect.getSelectedItems();
-        }else{
-            imageSelect.setSelectedItems(selectedItems);
-        }
+        Log.d(TAG, "onCreate "+selectedItems);
+//        if(selectedItems==null){
+//            selectedItems = imageSelect.getSelectedItems();
+//        }else{
+//            imageSelect.setSelectedItems(selectedItems);
+//        }
     }
 
     @Override
@@ -130,6 +131,14 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
 //        }
     }
 
+    @Override
+    protected void onDestroy() {
+        if (imageSelect != null) {
+            imageSelect.destroy();
+        }
+        super.onDestroy();
+
+    }
     protected void result(List<ImageItem> imageItems) {
         if (imageItems != null && imageItems.size() > 0) {
             Intent intent = new Intent();
@@ -231,12 +240,10 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(), "空", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT).show();
                 }
             });
         }
-
-//        Log.e("SOS", "scan completed ");
         msc.disconnect();
     }
 }

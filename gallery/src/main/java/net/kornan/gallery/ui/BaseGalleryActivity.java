@@ -8,17 +8,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Toast;
-
-import com.baoyz.actionsheet.ActionSheet;
 
 import net.kornan.gallery.factory.AlbumHelper;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
-import net.kornan.gallery.view.GridNoScrollAdapter;
-import net.kornan.gallery.view.GridNoScrollView;
 import net.kornan.tools.FileUtils;
 import net.kornan.tools.MediaUtils;
 
@@ -30,7 +23,7 @@ import java.util.ArrayList;
  * @author: kornan
  * @date: 2016-03-09 09:23
  */
-public abstract class BasePhotoActivity extends AppCompatActivity implements ActionSheet.ActionSheetListener {
+public abstract class BaseGalleryActivity extends AppCompatActivity{
 
     private int SELECT_IMAGE_MAX = 9;
 
@@ -41,11 +34,6 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
 
     protected AlbumHelper helper;
 
-    protected GridNoScrollView gridNoScrollView;
-    protected GridNoScrollAdapter gridNoScrollAdapter;
-    protected int selectImageMax = 9;
-    protected int selectPosition;
-    protected ArrayList<ImageItem> gridImageItem = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +53,6 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
         helper.init(getApplicationContext());
     }
 
-    /**
-     * 多图选择返回必需初始化手动gridNoScrollView
-     */
-    protected void initGrid(GridNoScrollView gridNoScrollView) {
-        this.gridNoScrollView = gridNoScrollView;
-        gridImageItem = new ArrayList<>();
-        gridNoScrollAdapter = new GridNoScrollAdapter(this,gridImageItem);
-        gridNoScrollView.setAdapter(gridNoScrollAdapter);
-        gridNoScrollView.setOnItemClickListener(gridNoscrollItemClickListener);
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -90,47 +67,6 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
         mPhotoTargetFolder = savedInstanceState.getString("photoTargetFolder");
     }
 
-    @Override
-    public void onDismiss(ActionSheet actionSheet, boolean isCancel) {
-
-    }
-
-    @Override
-    public void onOtherButtonClick(ActionSheet actionSheet, int index) {
-        switch (index) {
-            case 0:
-                startTakePhoto();
-                break;
-            case 1:
-                if (!FileUtils.existSDCard()) {
-                    Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                selectImageMax = SELECT_IMAGE_MAX - gridImageItem.size();
-                startGallery(selectImageMax);
-                break;
-            case 2:
-                break;
-        }
-
-    }
-
-    public void setImageMax(int max) {
-        SELECT_IMAGE_MAX = selectImageMax = max;
-    }
-
-    /**
-     * 跳转到系统拍照
-     */
-    public void startTakePhoto() {
-        if (!FileUtils.existSDCard()) {
-            Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
-            return;
-        }
-//        mTakePhotoUri = MediaUtils.getOutputMediaFileUri(MediaUtils.MEDIA_TYPE_IMAGE, "" + getPackageName());
-        mTakePhotoUri = createTakePhotoUri();
-        MediaUtils.takePhoto(this, mTakePhotoUri);
-    }
 
     /**
      * 跳转到选择图片
@@ -139,26 +75,6 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
         Intent intent = new Intent(this, ImagesActivity.class);
         intent.putExtra(ImagesActivity.SELECT_IMAGE_KEY, max);
         startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
-    }
-
-//    /**
-//     * 跳转到图片编辑
-//     */
-//    protected void startEditPhoto(String path) {
-//        Intent intent = new Intent(this, PhotoEditActivity.class);
-//        intent.putExtra(PhotoEditActivity.TAG, path);
-//        startActivityForResult(intent, MediaUtils.CUT_DOWN_IMAGE_ACTIVITY_REQUEST_CODE);
-//    }
-
-    /**
-     * 弹出框
-     */
-    public void showSheet() {
-        ActionSheet.createBuilder(this, this.getSupportFragmentManager()).setCancelButtonTitle("Cancel")
-                .setOtherButtonTitles("拍照", "相册")
-                .setCancelButtonTitle("取消")
-                .setCancelableOnTouchOutside(true)
-                .setListener(this).show();
     }
 
     private int outputX = 300;
@@ -239,17 +155,17 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (MediaUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-                takePhotoResult(data, mTakePhotoUri);
+//                takePhotoResult(data, mTakePhotoUri);
             } else if (MediaUtils.SINGLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
                 ArrayList<ImageItem> tmps = (ArrayList<ImageItem>) data.getSerializableExtra(ImagesActivity.SELECT_IMAGE_KEY);
-                selectImageResult(data, tmps);
+//                selectImageResult(data, tmps);
             } else if (MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
                 ArrayList<ImageItem> tmps = (ArrayList<ImageItem>) data.getSerializableExtra(ImagesActivity.SELECT_IMAGE_KEY);
                 selectMulImageResult(data, tmps);
             } else if (MediaUtils.CUT_DOWN_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
                 cutDownResult(data, mTakePhotoUri);
             } else if (MediaUtils.PREVIEW_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-                previewImageResult(data);
+//                previewImageResult(data);
             }
         } else if (resultCode == RESULT_CANCELED) {
             photoCanceled();
@@ -273,69 +189,12 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
     }
 
     /**
-     * 大图预览返回处理
-     *
-     * @param data
-     */
-    public void previewImageResult(Intent data) {
-        ArrayList<ImageItem> items = (ArrayList<ImageItem>) data.getSerializableExtra(GalleryPreviewActivity.PREVIEW_TAG);
-
-        if (gridNoScrollAdapter != null) {
-            gridImageItem.clear();
-            gridNoScrollAdapter.getList().clear();
-            if (data != null) {
-                gridImageItem.addAll(items);
-//                for (ImageItem item : items) {
-//                    gridNoScrollAdapter.add(Uri.fromFile(new File(item.imagePath)));
-//                }
-            }
-            gridNoScrollAdapter.notifyDataSetChanged();
-        }
-    }
-
-    /**
-     * 拍照返回处理
-     *
-     * @param data
-     * @param photoUri
-     */
-    public void takePhotoResult(Intent data, Uri photoUri) {
-        ImageItem imageItem = new ImageItem();
-        imageItem.imagePath = photoUri.getPath();
-        gridImageItem.add(imageItem);
-//        if (gridNoScrollAdapter != null) {
-//            gridNoScrollAdapter.add(Uri.fromFile(new File(imageItem.imagePath)));
-//            gridNoScrollAdapter.notifyDataSetChanged();
-//        }
-    }
-
-    /**
-     * 选择图片返回处理
-     *
-     * @param data
-     * @param imgs
-     */
-    public void selectImageResult(Intent data, ArrayList<ImageItem> imgs) {
-    }
-
-
-    /**
      * 选择多张图片返回处理
      *
      * @param data
      * @param items
      */
-    public void selectMulImageResult(Intent data, ArrayList<ImageItem> items) {
-        if (data != null) {
-            gridImageItem.addAll(items);
-            if (gridNoScrollAdapter != null) {
-                for (ImageItem item : items) {
-//                    gridNoScrollAdapter.add(Uri.fromFile(new File(item.imagePath)));
-                }
-                gridNoScrollAdapter.notifyDataSetChanged();
-            }
-        }
-    }
+    public abstract void selectMulImageResult(Intent data, ArrayList<ImageItem> items) ;
 
     /**
      * 裁剪图片返回处理
@@ -345,19 +204,4 @@ public abstract class BasePhotoActivity extends AppCompatActivity implements Act
      */
     public void cutDownResult(Intent data, Uri photoUri) {
     }
-
-    /**
-     * 多图ItemClick
-     */
-    private AdapterView.OnItemClickListener gridNoscrollItemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectPosition = position;
-            if (gridNoScrollAdapter.isCanAdd(selectPosition)) {
-                showSheet();
-            } else {
-                startPreview(gridImageItem, position, true);
-            }
-        }
-    };
 }

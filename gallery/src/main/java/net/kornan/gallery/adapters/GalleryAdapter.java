@@ -64,6 +64,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         return max;
     }
 
+    public void setMax(int max){
+        this.max=max;
+    }
+
     public List<ImageItem> getSelectedItems() {
         return selectedItems;
     }

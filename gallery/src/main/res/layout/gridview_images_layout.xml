@@ -17,5 +17,6 @@
     android:clipToPadding="false"
     android:fadingEdge="none"
     android:horizontalSpacing="2dp"
+    android:background="@android:color/black"
     android:numColumns="3"
     android:verticalSpacing="2dp" />
