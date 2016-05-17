@@ -19,7 +19,8 @@ public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHo
 
     private List<ImageBucket> datas=new ArrayList<>();
 
-    public GalleryPopupAdapter() {
+    public GalleryPopupAdapter(List<ImageBucket> datas) {
+        this.datas=datas;
     }
 
     @Override
@@ -30,7 +31,9 @@ public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHo
 
     @Override
     public void onBindViewHolder(GalleryPopupViewHolder holder, int position) {
-
+        ImageBucket bucket=datas.get(position);
+        holder.bucketName.setText(bucket.bucketName);
+        holder.bucketSize.setText(String.valueOf(bucket.imageList.size()));
     }
 
     @Override

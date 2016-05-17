@@ -4,6 +4,7 @@ import net.kornan.gallery.factory.ImageItem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by KORNAN on 2016/3/12.
@@ -12,15 +13,15 @@ import java.util.ArrayList;
  * @date: 2016-03-12 14:12
  */
 public class PreviewData implements Serializable {
-    private ArrayList<ImageItem> imageItems;
+    private List<ImageItem> imageItems;
     private boolean delete=false;
     private int index=0;
 
-    public ArrayList<ImageItem> getImageItems() {
+    public List<ImageItem> getImageItems() {
         return imageItems;
     }
 
-    public void setImageItems(ArrayList<ImageItem> imageItems) {
+    public void setImageItems(List<ImageItem> imageItems) {
         this.imageItems = imageItems;
     }
 

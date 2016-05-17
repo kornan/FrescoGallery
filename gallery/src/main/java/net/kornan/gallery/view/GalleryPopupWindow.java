@@ -14,6 +14,7 @@ import android.widget.PopupWindow;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.adapters.GalleryPopupAdapter;
+import net.kornan.gallery.factory.AlbumHelper;
 
 /**
  * PopupWindow
@@ -21,10 +22,18 @@ import net.kornan.gallery.adapters.GalleryPopupAdapter;
  */
 public final class GalleryPopupWindow extends PopupWindow {
 
+    private AlbumHelper albumHelper;
     public RecyclerView recyclerView;
     public View conentView;
     private GalleryPopupAdapter galleryPopupAdapter;
+
     public GalleryPopupWindow initGallery(Activity activity) {
+
+        albumHelper = AlbumHelper.getHelper();
+        albumHelper.init(activity);
+
+        galleryPopupAdapter = new GalleryPopupAdapter(albumHelper.getImagesBucketList());
+
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -33,7 +42,6 @@ public final class GalleryPopupWindow extends PopupWindow {
         recyclerView = (RecyclerView) conentView.findViewById(R.id.rec_popup);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 //        recyclerView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL, 0));
-        galleryPopupAdapter=new GalleryPopupAdapter();
         recyclerView.setAdapter(galleryPopupAdapter);
 
 
@@ -48,7 +56,7 @@ public final class GalleryPopupWindow extends PopupWindow {
         return this;
     }
 
-    public final void show(View view){
+    public final void show(View view) {
         showAtLocation(view, Gravity.BOTTOM, 10, 150);
     }
 

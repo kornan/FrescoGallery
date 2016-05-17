@@ -18,6 +18,7 @@ import net.kornan.gallery.R;
 import net.kornan.gallery.factory.AlbumHelper;
 import net.kornan.gallery.factory.ImageItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +41,7 @@ public class ImagesSelectView extends RelativeLayout {
     private int selectMax = 9;
     private boolean multiSelect = true;
     private boolean isDigit=true;
-
+    private List<ImageItem> selectedItems=new ArrayList<>();
     public ImagesSelectView(Context context) {
         super(context);
         init(context, null);
@@ -67,7 +68,12 @@ public class ImagesSelectView extends RelativeLayout {
     public List<ImageItem> getDataList() {
         return dataList;
     }
-
+    public List<ImageItem> getSelectedItems(){
+        return selectedItems;
+    }
+    public void setSelectedItems(List<ImageItem> selectedItems){
+        this.selectedItems=selectedItems;
+    }
     public int getSelectMax() {
         return selectMax;
     }
@@ -90,7 +96,7 @@ public class ImagesSelectView extends RelativeLayout {
         helper.init(getContext().getApplicationContext());
         dataList = helper.getAllImagesItemList();
         gridView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect,isDigit);
+        adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect,isDigit,selectedItems);
         gridView.setAdapter(adapter);
         gridView.setItemAnimator(new DefaultItemAnimator());
     }

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,15 +30,15 @@ public class AlbumHelper implements IAlbum {
      * 是否创建了图片集
      */
     private boolean hasBuildImagesBucketList = false;
-    /*
+    /**
      * 缩略图列表
      */
     HashMap<String, String> thumbnailList = new HashMap<>();
-    /*
+    /**
      * 专辑列表
      */
     HashMap<String, ImageBucket> bucketList = new HashMap<>();
-    /*
+    /**
      * 所有图片列表
      */
     List<ImageItem> imageItems = new ArrayList<>();
@@ -59,7 +60,7 @@ public class AlbumHelper implements IAlbum {
     /**
      * 初始化
      *
-     * @param context
+     * @param context 上下文
      */
     public void init(Context context) {
         if (this.context == null) {
@@ -210,6 +211,8 @@ public class AlbumHelper implements IAlbum {
                 imageItem.imageId = _id;
                 imageItem.imagePath = path;
 //                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
+
+                bucket.path=new File(path).getParentFile().getAbsolutePath();
                 bucket.imageList.add(imageItem);
                 imageItems.add(imageItem);
 

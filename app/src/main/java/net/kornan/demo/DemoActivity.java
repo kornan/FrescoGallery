@@ -1,6 +1,7 @@
 package net.kornan.demo;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -8,6 +9,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +18,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import net.kornan.gallery.factory.AlbumHelper;
+import net.kornan.gallery.factory.ImageBucket;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.ui.GalleryPreviewActivity;
@@ -35,7 +39,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener {
-
+    public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
 
     @InjectView(R.id.imageSelect)
@@ -53,21 +57,24 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     protected Uri mTakePhotoUri;
     protected MediaScannerConnection msc;
     protected GalleryPopupWindow galleryPopupWindow;
+    protected List<ImageItem> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_demo);
         ButterKnife.inject(this);
         galleryToolbar.setGalleryListener(this);
         imageSelect.setCameraClickLinstener(this);
+
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (galleryPopupWindow == null) {
                     galleryPopupWindow = new GalleryPopupWindow().initGallery(DemoActivity.this);
                 }
-                Toast.makeText(v.getContext(), "" + galleryPopupWindow.isShowing(), Toast.LENGTH_SHORT).show();
                 if (galleryPopupWindow.isShowing()) {
                     galleryPopupWindow.dismiss();
                 } else {
@@ -75,6 +82,12 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
                 }
             }
         });
+
+        if(selectedItems==null){
+            selectedItems = imageSelect.getSelectedItems();
+        }else{
+            imageSelect.setSelectedItems(selectedItems);
+        }
     }
 
     @Override
@@ -98,6 +111,23 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     @Override
     public void cancel() {
         finish();
+    }
+
+    @Override
+    public void OnBucketChange() {
+        galleryPopupWindow.dismiss();
+
+//        ImageBucket bucket =  AlbumHelper.getHelper().init().getSelectedFolder();
+//        if( !TextUtils.equals(bucket.path, this.currentFolderPath) ) {
+//            this.currentFolderPath = bucket.path;
+//            mFolderSelectButton.setText(bucket.bucketName);
+//
+//            ImageListContent.IMAGES.clear();
+//            ImageListContent.IMAGES.addAll(bucket.imageList);
+            imageSelect.getAdapter().notifyDataSetChanged();
+//        } else {
+//            Log.d(TAG, "OnFolderChange: " + "Same folder selected, skip loading.");
+//        }
     }
 
     protected void result(List<ImageItem> imageItems) {
@@ -144,12 +174,14 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("mTakePhotoUri", mTakePhotoUri);
+        outState.putSerializable("selectedItems", (Serializable) selectedItems);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mTakePhotoUri = savedInstanceState.getParcelable("mTakePhotoUri");
+        selectedItems = (List<ImageItem>) savedInstanceState.getSerializable("selectedItems");
     }
 
     /**

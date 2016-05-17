@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class ImageBucket {
 	public int count = 0;
+	public String path;
 	public String bucketName;
 	public List<ImageItem> imageList;
 

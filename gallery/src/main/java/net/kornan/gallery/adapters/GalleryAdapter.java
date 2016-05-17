@@ -21,20 +21,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
 
     private List<ImageItem> dataList;
     private Context context;
-    private ArrayList<ImageItem> selectedItems;
+    private List<ImageItem> selectedItems;
     private int max;
     private boolean multiSelect;
     private boolean isDigit;
 
     public CameraClickLinstener cameraClickLinstener;
 
-    public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect,boolean isDigit) {
-        selectedItems = new ArrayList<>();
+    public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect,boolean isDigit,List<ImageItem> selectedItems) {
         this.context = context;
         this.dataList = list;
         this.max = max;
         this.multiSelect = multiSelect;
         this.isDigit=isDigit;
+        this.selectedItems=selectedItems;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         return max;
     }
 
-    public ArrayList<ImageItem> getSelectedItems() {
+    public List<ImageItem> getSelectedItems() {
         return selectedItems;
     }
 
@@ -96,8 +96,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
      * 刷新顺序
      */
     public void refreshIndex() {
-        for (int i = 0; i < getSelectedItems().size(); i++) {
-            ImageItem item = getSelectedItems().get(i);
+        for (int i = 0; i < selectedItems.size(); i++) {
+            ImageItem item = selectedItems.get(i);
             item.selectedIndex = i+1;
         }
         notifyDataSetChanged();
