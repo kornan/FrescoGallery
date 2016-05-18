@@ -94,6 +94,7 @@ public class ImageViewHolder extends GalleryViewHolder {
                 } else {
                     item.selectedIndex=-1;
                     adapter.getSelectedItems().remove(item);
+//                    adapter.getSelectedItems().remove()
                 }
                 adapter.refreshIndex();
                 item.isSelected = isChecked;

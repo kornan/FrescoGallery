@@ -41,7 +41,7 @@ import butterknife.InjectView;
 public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener {
     public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
-
+    public final static String SELECT_IMAGE_DATA = "SELECT_IMAGE_DATA";
     @InjectView(R.id.imageSelect)
     ImagesSelectView imageSelect;
 
@@ -59,15 +59,27 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     protected GalleryPopupWindow galleryPopupWindow;
     protected List<ImageItem> selectedItems;
     protected int selectMax;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
         ButterKnife.inject(this);
+
+        initData();
+
         galleryToolbar.setGalleryListener(this);
         imageSelect.setCameraClickLinstener(this);
-        selectMax = getIntent().getIntExtra(SELECT_IMAGE_KEY, 9);
+
+        imageSelect.getSelectedItems().clear();
+        imageSelect.getSelectedItems().addAll(selectedItems);
+//        for(imageSelect.getDataList()){
+//
+//        }
+
+
+
         imageSelect.setSelectMax(selectMax);
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,12 +95,17 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             }
         });
 
-        Log.d(TAG, "onCreate "+selectedItems);
+        Log.d(TAG, "onCreate " + selectedItems);
 //        if(selectedItems==null){
 //            selectedItems = imageSelect.getSelectedItems();
 //        }else{
 //            imageSelect.setSelectedItems(selectedItems);
 //        }
+    }
+
+    private void initData() {
+        selectMax = getIntent().getIntExtra(SELECT_IMAGE_KEY, 9);
+        selectedItems = (List<ImageItem>) getIntent().getSerializableExtra(SELECT_IMAGE_DATA);
     }
 
     @Override
@@ -125,7 +142,7 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
 //
 //            ImageListContent.IMAGES.clear();
 //            ImageListContent.IMAGES.addAll(bucket.imageList);
-            imageSelect.getAdapter().notifyDataSetChanged();
+        imageSelect.getAdapter().notifyDataSetChanged();
 //        } else {
 //            Log.d(TAG, "OnFolderChange: " + "Same folder selected, skip loading.");
 //        }
@@ -139,6 +156,7 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
         super.onDestroy();
 
     }
+
     protected void result(List<ImageItem> imageItems) {
         if (imageItems != null && imageItems.size() > 0) {
             Intent intent = new Intent();

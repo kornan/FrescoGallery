@@ -211,7 +211,6 @@ public class AlbumHelper implements IAlbum {
                 imageItem.imageId = _id;
                 imageItem.imagePath = path;
 //                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
-
                 bucket.path=new File(path).getParentFile().getAbsolutePath();
                 bucket.imageList.add(imageItem);
                 imageItems.add(imageItem);
@@ -220,7 +219,6 @@ public class AlbumHelper implements IAlbum {
         }
         addTakePhone();
         hasBuildImagesItemList = true;
-//        return bucketList;
     }
 
     @Override
@@ -399,6 +397,16 @@ public class AlbumHelper implements IAlbum {
 
         for (ImageItem item : items) {
             item.isSelected = false;
+        }
+    }
+
+    /**
+     * 重置项
+     */
+    public void reset(List<ImageItem> items,boolean flag) {
+
+        for (ImageItem item : items) {
+            item.isSelected = flag;
         }
     }
 }

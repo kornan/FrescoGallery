@@ -74,10 +74,6 @@ public class ImagesSelectView extends RelativeLayout {
         return selectedItems;
     }
 
-    public void setSelectedItems(List<ImageItem> selectedItems) {
-        this.selectedItems = selectedItems;
-    }
-
     public int getSelectMax() {
         return selectMax;
     }
@@ -112,6 +108,7 @@ public class ImagesSelectView extends RelativeLayout {
             adapter.notifyDataSetChanged();
         }
     }
+
 
     public void destroy() {
         if (helper != null) {

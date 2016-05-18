@@ -115,9 +115,7 @@ public class GridNoScrollAdapter extends BaseAdapter {
             tv_number.setVisibility(View.GONE);
         }
         if (position < datas.size()&&position<max) {
-//            ImageUtils.resizeImageViewForScreen(image, uriList.get(position), 180, 180);
             ImageUtils.resizeImageViewForScreen(image, Uri.fromFile(new File(datas.get(position).imagePath)), 180, 180);
-
         } else {
             image.getHierarchy()
                     .setPlaceholderImage(R.drawable.photo_add);

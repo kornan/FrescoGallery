@@ -28,13 +28,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
 
     public CameraClickLinstener cameraClickLinstener;
 
-    public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect,boolean isDigit,List<ImageItem> selectedItems) {
+    public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect, boolean isDigit, List<ImageItem> selectedItems) {
         this.context = context;
         this.dataList = list;
         this.max = max;
         this.multiSelect = multiSelect;
-        this.isDigit=isDigit;
-        this.selectedItems=selectedItems;
+        this.isDigit = isDigit;
+        this.selectedItems = selectedItems;
     }
 
     @Override
@@ -44,36 +44,26 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
             return new CameraViewHolder(context, this, itemLayout);
         } else {
             View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, null);
-            return new ImageViewHolder(context, this, itemLayout,isDigit);
+            return new ImageViewHolder(context, this, itemLayout, isDigit);
         }
-    }
-
-    public void setCameraClickLinstener(CameraClickLinstener cameraClickLinstener) {
-        this.cameraClickLinstener = cameraClickLinstener;
-    }
-
-    public boolean isMultiSelect() {
-        return multiSelect;
-    }
-
-    public boolean isDigit() {
-        return isDigit;
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public void setMax(int max){
-        this.max=max;
-    }
-
-    public List<ImageItem> getSelectedItems() {
-        return selectedItems;
     }
 
     @Override
     public void onBindViewHolder(GalleryViewHolder holder, int position) {
+
+        if (dataList.get(position).type == ImageItem.Type.IMAGE) {
+
+            for (ImageItem imageItem : selectedItems) {
+                if (dataList.get(position).imageId.equals(imageItem.imageId)) {
+//                    dataList.get(position).isSelected = imageItem.isSelected;
+//                    dataList.get(position).selectedIndex = imageItem.selectedIndex;
+                    dataList.remove(position);
+                    dataList.add(position,imageItem);
+                    break;
+                }
+            }
+        }
+
         holder.bindData(dataList.get(position), position);
     }
 
@@ -96,13 +86,37 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         return count;
     }
 
+    public void setCameraClickLinstener(CameraClickLinstener cameraClickLinstener) {
+        this.cameraClickLinstener = cameraClickLinstener;
+    }
+
+    public boolean isMultiSelect() {
+        return multiSelect;
+    }
+
+    public boolean isDigit() {
+        return isDigit;
+    }
+
+    public int getMax() {
+        return max;
+    }
+
+    public void setMax(int max) {
+        this.max = max;
+    }
+
+    public List<ImageItem> getSelectedItems() {
+        return selectedItems;
+    }
+
     /**
      * 刷新顺序
      */
     public void refreshIndex() {
         for (int i = 0; i < selectedItems.size(); i++) {
             ImageItem item = selectedItems.get(i);
-            item.selectedIndex = i+1;
+            item.selectedIndex = i + 1;
         }
         notifyDataSetChanged();
     }

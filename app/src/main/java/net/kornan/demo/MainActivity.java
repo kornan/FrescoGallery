@@ -14,7 +14,9 @@ import net.kornan.gallery.view.GridNoScrollView;
 import net.kornan.tools.FileUtils;
 import net.kornan.tools.MediaUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -53,8 +55,9 @@ public class MainActivity extends BaseGalleryActivity implements AdapterView.OnI
                     Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                selectImageMax = SELECT_IMAGE_MAX - gridview.getDatas().size();
-                startGallery(selectImageMax);
+//                selectImageMax = SELECT_IMAGE_MAX - gridview.getDatas().size();
+//                startGallery(selectImageMax);
+                startGallery(gridview.getDatas(),SELECT_IMAGE_MAX);
             } else {
 //                startPreview(gridImageItem, position, true);
             }
@@ -63,6 +66,7 @@ public class MainActivity extends BaseGalleryActivity implements AdapterView.OnI
     @Override
     public void selectMulImageResult(Intent data, ArrayList<ImageItem> items) {
         if (items != null) {
+            gridview.getDatas().clear();
             gridview.getDatas().addAll(items);
             gridview.getGridNoScrollAdapter().notifyDataSetChanged();
         }
@@ -76,4 +80,15 @@ public class MainActivity extends BaseGalleryActivity implements AdapterView.OnI
         intent.putExtra(ImagesActivity.SELECT_IMAGE_KEY, max);
         startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
     }
+
+    /**
+     * 跳转到选择图片
+     */
+    protected void startGallery(List<ImageItem> selectImages,int max) {
+        Intent intent = new Intent(this, DemoActivity.class);
+        intent.putExtra(DemoActivity.SELECT_IMAGE_KEY, max);
+        intent.putExtra(DemoActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);
+        startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
+    }
+
 }
