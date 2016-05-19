@@ -10,7 +10,6 @@ import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.view.CameraClickLinstener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,7 +42,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
             View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_take_phone_item, null);
             return new CameraViewHolder(context, this, itemLayout);
         } else {
-            View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, null);
+            View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_image_item, null);
             return new ImageViewHolder(context, this, itemLayout, isDigit);
         }
     }

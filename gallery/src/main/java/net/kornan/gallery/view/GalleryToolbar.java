@@ -51,7 +51,7 @@ public class GalleryToolbar extends RelativeLayout implements Toolbar.OnMenuItem
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.GalleryToolbar);
         type = typedArray.getInt(R.styleable.GalleryToolbar_type, 0);
         typedArray.recycle();
-        View view = LayoutInflater.from(context).inflate(R.layout.toolbar, this);
+        View view = LayoutInflater.from(context).inflate(R.layout.gallery_toolbar, this);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
 //        toolbar=(Toolbar) view;
         toolbar.inflateMenu(R.menu.gallery_base_toolbar_menu);

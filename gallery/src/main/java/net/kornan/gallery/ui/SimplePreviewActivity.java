@@ -13,10 +13,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
 
 import com.facebook.imagepipeline.common.ResizeOptions;
 
@@ -24,8 +22,6 @@ import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.view.GalleryPhotoView;
-import net.kornan.gallery.view.GalleryRecyclerAdapter;
-import net.kornan.gallery.view.GalleryRecyclerView;
 import net.kornan.gallery.view.GalleryToolbar;
 import net.kornan.tools.ImageUtils;
 import net.kornan.tools.MediaUtils;
@@ -35,7 +31,10 @@ import java.util.ArrayList;
 /**
  * 本地图片预览
  */
-public class SimplePreviewActivity extends Activity implements OnPageChangeListener,GalleryToolbar.GalleryToolbarLinstener {
+public class SimplePreviewActivity extends Activity implements OnPageChangeListener, GalleryToolbar.GalleryToolbarLinstener {
+    private final static int WIDTH = 480;
+    private final static int HEIGHT = 800;
+
     public final static String PREVIEW_TAG = "paths";
     public final static String PREVIEW_TITLE_BAR = "title_bar";
 
@@ -48,7 +47,7 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
 
     private void initView() {
 
-        toolbar=(GalleryToolbar)findViewById(R.id.gallery_toolbar);
+        toolbar = (GalleryToolbar) findViewById(R.id.gallery_toolbar);
         toolbar.setGalleryToolbarLinstener(this);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -68,7 +67,7 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
             if (previewData != null) {
                 position = previewData.getIndex();
 //                btn_photo_del.setVisibility(previewData.isDelete() ? View.VISIBLE : View.GONE);
-                if(previewData.isDelete()){
+                if (previewData.isDelete()) {
                     toolbar.setType(GalleryToolbar.TYPE_EDIT);
                 }
                 drr.addAll(previewData.getImageItems());
@@ -84,7 +83,7 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
                     LayoutParams.MATCH_PARENT));
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             adapter.add(imageView);
-            loadImage(i);
+            loadImage(i, true);
         }
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
@@ -108,7 +107,7 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setContentView(R.layout.activity_preview);
+        setContentView(R.layout.activity_simple_preview);
         initView();
         initData();
     }
@@ -130,16 +129,23 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         }
     }
 
-    private void loadImage(int position) {
+    private void loadImage(int position, boolean isDefalut) {
         DisplayMetrics displayMetrics = MediaUtils.getScreenDimen(this);
         Uri thumbUri = ImageUtils.getUri(drr.get(position).thumbnailPath);
         Uri bigUri = ImageUtils.getUri(drr.get(position).imagePath);
 
-        if (thumbUri != null) {
-            adapter.getView(position).setImageUri(bigUri, thumbUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
+        if (isDefalut) {
+            adapter.getView(position).setImageUri(bigUri, new ResizeOptions(WIDTH, HEIGHT));
+
         } else {
             adapter.getView(position).setImageUri(bigUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
         }
+        //fresco:渐进式JPEG图仅仅支持网络图
+//        if (thumbUri != null) {
+//            adapter.getView(position).setImageUri(bigUri, thumbUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
+//        } else {
+//            adapter.getView(position).setImageUri(bigUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
+//        }
     }
 
     private boolean isScrolling = false;
@@ -164,19 +170,24 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     @Override
     public void onPageScrolled(int arg0, float arg1, int arg2) {
         // TODO Auto-generated method stub
-        Log.e("adapter", "onPageScrolled " + arg0 + " " + arg1 + " " + arg2);
-        if (adapter.getCount() > 0) {
-            toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
-        }
+//        Log.e("adapter", "onPageScrolled " + arg0 + " " + arg1 + " " + arg2);
+//        if (adapter.getCount() > 0) {
+//            toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
+//        }
     }
 
     @Override
     public void onPageSelected(int arg0) {
         // TODO Auto-generated method stub
+        Log.e("adapter", "onPageSelected " + arg0 );
         position = arg0;
-        if(adapter.getView(position).isActivated()&&adapter.getView(position).getVisibleRectangleBitmap().isRecycled()){
-            loadImage(position);
+        if (adapter.getCount() > 0) {
+            toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
         }
+//        if (adapter.getView(position).isActivated() && adapter.getView(position).getVisibleRectangleBitmap().isRecycled()) {
+//            Log.e("adapter", "onPageSelected " + arg0 );
+            loadImage(position, false);
+//        }
     }
 
     @Override

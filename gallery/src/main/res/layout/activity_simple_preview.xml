@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical"
-    tools:context=".ui.GalleryPreviewActivity">
+    tools:context=".ui.SimplePreviewActivity">
 
     <net.kornan.gallery.view.GalleryToolbar
         android:id="@+id/gallery_toolbar"
