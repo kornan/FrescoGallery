@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import net.kornan.gallery.factory.ImageItem;
-import net.kornan.gallery.ui.BaseGalleryActivity;
+import net.kornan.gallery.ui.GalleryBaseActivity;
 import net.kornan.gallery.ui.ImagesActivity;
 import net.kornan.gallery.view.GridNoScrollView;
 import net.kornan.tools.FileUtils;
@@ -20,9 +20,8 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 
-public class MainActivity extends BaseGalleryActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends GalleryBaseActivity implements AdapterView.OnItemClickListener {
     private int SELECT_IMAGE_MAX = 20;
 
     @InjectView(R.id.gridview)
@@ -60,12 +59,22 @@ public class MainActivity extends BaseGalleryActivity implements AdapterView.OnI
                 startGallery(gridview.getDatas(),SELECT_IMAGE_MAX);
             } else {
 //                startPreview(gridImageItem, position, true);
+                startPreview(gridview.getDatas(),position,true,true);
             }
     }
 
     @Override
     public void selectMulImageResult(Intent data, ArrayList<ImageItem> items) {
         if (items != null) {
+            gridview.getDatas().clear();
+            gridview.getDatas().addAll(items);
+            gridview.getGridNoScrollAdapter().notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void previewImageResult(Intent data, ArrayList<ImageItem> items) {
+        if(items!=null){
             gridview.getDatas().clear();
             gridview.getDatas().addAll(items);
             gridview.getGridNoScrollAdapter().notifyDataSetChanged();

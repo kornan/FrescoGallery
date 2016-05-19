@@ -16,6 +16,7 @@ import net.kornan.tools.FileUtils;
 import net.kornan.tools.MediaUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by KORNAN on 2016/3/9.
@@ -23,7 +24,7 @@ import java.util.ArrayList;
  * @author: kornan
  * @date: 2016-03-09 09:23
  */
-public abstract class BaseGalleryActivity extends AppCompatActivity{
+public abstract class GalleryBaseActivity extends AppCompatActivity{
 
     private int SELECT_IMAGE_MAX = 9;
 
@@ -125,11 +126,11 @@ public abstract class BaseGalleryActivity extends AppCompatActivity{
      * @param position   从第几张开始，第一张为0
      * @param isResult   是否需要返回数据
      */
-    protected void startPreview(ArrayList<ImageItem> imageItems, int position, boolean isResult) {
+    protected void startPreview(List<ImageItem> imageItems, int position, boolean isDelete,boolean isResult) {
         Intent intent = new Intent(this, GalleryPreviewActivity.class);
         PreviewData data = new PreviewData();
         data.setImageItems(imageItems);
-        data.setDelete(true);
+        data.setDelete(isDelete);
         data.setIndex(position);
         intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
         if (isResult) {
@@ -145,10 +146,10 @@ public abstract class BaseGalleryActivity extends AppCompatActivity{
      * @param imageItem 图片
      * @param isResult  是否需要返回数据
      */
-    protected void startPreview(ImageItem imageItem, boolean isResult) {
+    protected void startPreview(ImageItem imageItem, boolean isDelete,boolean isResult) {
         ArrayList<ImageItem> imgs = new ArrayList<>();
         imgs.add(imageItem);
-        startPreview(imgs, 0, isResult);
+        startPreview(imgs, 0, isDelete,isResult);
     }
 
     @Override
@@ -165,11 +166,32 @@ public abstract class BaseGalleryActivity extends AppCompatActivity{
             } else if (MediaUtils.CUT_DOWN_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
                 cutDownResult(data, mTakePhotoUri);
             } else if (MediaUtils.PREVIEW_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-//                previewImageResult(data);
+                ArrayList<ImageItem> items = (ArrayList<ImageItem>) data.getSerializableExtra(GalleryPreviewActivity.PREVIEW_TAG);
+                previewImageResult(data,items);
             }
         } else if (resultCode == RESULT_CANCELED) {
-            photoCanceled();
+
         }
+    }
+
+    /**
+     * 大图预览返回处理
+     *
+     * @param data
+     */
+    public void previewImageResult(Intent data,ArrayList<ImageItem> items) {
+//        ArrayList<ImageItem> items = (ArrayList<ImageItem>) data.getSerializableExtra(GalleryPreviewActivity.PREVIEW_TAG);
+//        if (gridNoScrollAdapter != null) {
+//            gridImageItem.clear();
+//            gridNoScrollAdapter.getList().clear();
+//            if (data != null) {
+//                gridImageItem.addAll(items);
+////                for (ImageItem item : items) {
+////                    gridNoScrollAdapter.add(Uri.fromFile(new File(item.imagePath)));
+////                }
+//            }
+//            gridNoScrollAdapter.notifyDataSetChanged();
+//        }
     }
 
     /**
@@ -179,13 +201,6 @@ public abstract class BaseGalleryActivity extends AppCompatActivity{
      */
     protected Uri createTakePhotoUri() {
         return FileUtils.getOutputMediaFileUri(this, MediaUtils.MEDIA_TYPE_IMAGE, "" + getPackageName());
-    }
-
-    /**
-     * 进入相册，然后取消操作
-     */
-    protected void photoCanceled() {
-
     }
 
     /**

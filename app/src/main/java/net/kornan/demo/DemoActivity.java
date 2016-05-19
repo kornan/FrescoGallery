@@ -31,14 +31,13 @@ import net.kornan.tools.FileUtils;
 import net.kornan.tools.MediaUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener {
+public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener,GalleryToolbar.GalleryToolbarLinstener {
     public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
     public final static String SELECT_IMAGE_DATA = "SELECT_IMAGE_DATA";
@@ -69,16 +68,11 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
 
         initData();
 
-        galleryToolbar.setGalleryListener(this);
+        galleryToolbar.setGalleryToolbarLinstener(this);
         imageSelect.setCameraClickLinstener(this);
 
         imageSelect.getSelectedItems().clear();
         imageSelect.getSelectedItems().addAll(selectedItems);
-//        for(imageSelect.getDataList()){
-//
-//        }
-
-
 
         imageSelect.setSelectMax(selectMax);
         btnMenu.setOnClickListener(new View.OnClickListener() {
@@ -106,29 +100,6 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     private void initData() {
         selectMax = getIntent().getIntExtra(SELECT_IMAGE_KEY, 9);
         selectedItems = (List<ImageItem>) getIntent().getSerializableExtra(SELECT_IMAGE_DATA);
-    }
-
-    @Override
-    public void showBigImage() {
-        if (imageSelect.getAdapter().getSelectedItems().size() > 0) {
-            Intent intent = new Intent(this, GalleryPreviewActivity.class);
-            PreviewData data = new PreviewData();
-            data.setImageItems(imageSelect.getAdapter().getSelectedItems());
-            intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "请选择图片！", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void complete() {
-        result(imageSelect.getAdapter().getSelectedItems());
-    }
-
-    @Override
-    public void cancel() {
-        finish();
     }
 
     @Override
@@ -263,5 +234,38 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             });
         }
         msc.disconnect();
+    }
+
+    @Override
+    public void onDelete() {
+
+    }
+
+    @Override
+    public void onBack() {
+        finish();
+    }
+
+    @Override
+    public void onShowBigImage() {
+        if (imageSelect.getAdapter().getSelectedItems().size() > 0) {
+            Intent intent = new Intent(this, GalleryPreviewActivity.class);
+            PreviewData data = new PreviewData();
+            data.setImageItems(imageSelect.getAdapter().getSelectedItems());
+            intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "请选择图片！", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onComplete() {
+        result(imageSelect.getAdapter().getSelectedItems());
+    }
+
+    @Override
+    public void onCancel() {
+        finish();
     }
 }

@@ -10,6 +10,7 @@
     <net.kornan.gallery.view.GalleryToolbar
         android:id="@+id/gallery_toolbar"
         android:layout_width="match_parent"
+        gallery:type="seleted"
         android:layout_height="wrap_content" />
 
     <FrameLayout

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,9 @@ import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.view.GalleryPhotoView;
+import net.kornan.gallery.view.GalleryRecyclerAdapter;
+import net.kornan.gallery.view.GalleryRecyclerView;
+import net.kornan.gallery.view.GalleryToolbar;
 import net.kornan.tools.ImageUtils;
 import net.kornan.tools.MediaUtils;
 
@@ -31,28 +35,24 @@ import java.util.ArrayList;
 /**
  * 本地图片预览
  */
-public class GalleryPreviewActivity extends Activity implements View.OnClickListener, OnPageChangeListener {
+public class GalleryPreviewActivity extends Activity implements View.OnClickListener, OnPageChangeListener,GalleryToolbar.GalleryToolbarLinstener {
     public final static String PREVIEW_TAG = "paths";
     public final static String PREVIEW_TITLE_BAR = "title_bar";
 
-    private View rl_titleBar;
-    private TextView text_photo_number;
-    private Button btn_photo_del;
+    private GalleryToolbar toolbar;
+
+
     private ViewPager pager;
     private PreViewPageAdapter adapter;
     private int position = 0;
     public ArrayList<ImageItem> drr = new ArrayList<>();
-
     private void initView() {
-        rl_titleBar = findViewById(R.id.rl_titleBar);
-        text_photo_number = (TextView) findViewById(R.id.text_photo_number);
-        btn_photo_del = (Button) findViewById(R.id.btn_photo_del);
-        btn_photo_del.setOnClickListener(this);
-        findViewById(R.id.rl_back).setOnClickListener(this);
-        findViewById(R.id.btn_photo_exit).setOnClickListener(this);
-        text_photo_number.setOnClickListener(this);
-        Button btn_photo_enter = (Button) findViewById(R.id.btn_photo_enter);
-        btn_photo_enter.setOnClickListener(this);
+
+        toolbar=(GalleryToolbar)findViewById(R.id.gallery_toolbar);
+        toolbar.setGalleryToolbarLinstener(this);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
         pager = (ViewPager) findViewById(R.id.viewpager);
         pager.addOnPageChangeListener(this);
@@ -62,12 +62,15 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
         try {
             PreviewData previewData = (PreviewData) getIntent().getSerializableExtra(PREVIEW_TAG);
             boolean isCloseTitlebar = getIntent().getBooleanExtra(PREVIEW_TITLE_BAR, false);
-            if (isCloseTitlebar) {
-                rl_titleBar.setVisibility(View.GONE);
-            }
+//            if (isCloseTitlebar) {
+//                rl_titleBar.setVisibility(View.GONE);
+//            }
             if (previewData != null) {
                 position = previewData.getIndex();
-                btn_photo_del.setVisibility(previewData.isDelete() ? View.VISIBLE : View.GONE);
+//                btn_photo_del.setVisibility(previewData.isDelete() ? View.VISIBLE : View.GONE);
+                if(previewData.isDelete()){
+                    toolbar.setType(GalleryToolbar.TYPE_EDIT);
+                }
                 drr.addAll(previewData.getImageItems());
             }
         } catch (Exception e) {
@@ -85,7 +88,9 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
         }
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
-        text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
+        toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
+//        text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
+//        galleryRecyclerAdapter.notifyDataSetChanged();
     }
 
     private void result() {
@@ -122,24 +127,25 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
             if (position >= adapter.getCount()) {
                 position = adapter.getCount() - 1;
             }
-            text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
+            toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
+//            text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
             pager.setCurrentItem(position);
         }
     }
 
     @Override
     public void onClick(View v) {
-        if (R.id.btn_photo_del == v.getId()) {
-            deleteImage();
-        } else if (R.id.btn_photo_enter == v.getId()) {
-            result();
-        } else if (R.id.rl_back == v.getId()) {
-            result();
-        } else if (R.id.btn_photo_exit == v.getId()) {
-            result();
-        } else if (R.id.text_photo_number == v.getId()) {
-            result();
-        }
+//        if (R.id.btn_photo_del == v.getId()) {
+//            deleteImage();
+//        } else if (R.id.btn_photo_enter == v.getId()) {
+//            result();
+//        } else if (R.id.rl_back == v.getId()) {
+//            result();
+//        } else if (R.id.btn_photo_exit == v.getId()) {
+//            result();
+//        } else if (R.id.text_photo_number == v.getId()) {
+//            result();
+//        }
     }
 
     private void loadImage(int position) {
@@ -178,7 +184,8 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
         // TODO Auto-generated method stub
         Log.e("adapter", "onPageScrolled " + arg0 + " " + arg1 + " " + arg2);
         if (adapter.getCount() > 0) {
-            text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
+            toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
+//            text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
         }
     }
 
@@ -186,6 +193,32 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
     public void onPageSelected(int arg0) {
         // TODO Auto-generated method stub
         position = arg0;
+        if(adapter.getView(position).isActivated()&&adapter.getView(position).getVisibleRectangleBitmap().isRecycled()){
+            loadImage(position);
+        }
+    }
+
+    @Override
+    public void onDelete() {
+        deleteImage();
+    }
+
+    @Override
+    public void onBack() {
+        result();
+    }
+
+    @Override
+    public void onShowBigImage() {
+    }
+
+    @Override
+    public void onComplete() {
+    }
+
+    @Override
+    public void onCancel() {
+
     }
 
     class PreViewPageAdapter extends PagerAdapter {

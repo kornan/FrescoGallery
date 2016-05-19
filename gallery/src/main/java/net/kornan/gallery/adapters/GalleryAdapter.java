@@ -52,11 +52,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
     public void onBindViewHolder(GalleryViewHolder holder, int position) {
 
         if (dataList.get(position).type == ImageItem.Type.IMAGE) {
-
+            //替换其它界面传过来的已选项。
             for (ImageItem imageItem : selectedItems) {
                 if (dataList.get(position).imageId.equals(imageItem.imageId)) {
-//                    dataList.get(position).isSelected = imageItem.isSelected;
-//                    dataList.get(position).selectedIndex = imageItem.selectedIndex;
                     dataList.remove(position);
                     dataList.add(position,imageItem);
                     break;
