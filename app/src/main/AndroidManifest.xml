@@ -18,9 +18,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="net.kornan.gallery.ui.ImagesActivity" />
-        <activity android:name="net.kornan.gallery.ui.GalleryPreviewActivity" />
-        <activity android:name=".DemoActivity"></activity>
+        <activity android:name="net.kornan.gallery.ui.SimplePreviewActivity" />
+        <activity android:name="net.kornan.gallery.ui.SimpleImageActivity"/>
     </application>
 
 </manifest>

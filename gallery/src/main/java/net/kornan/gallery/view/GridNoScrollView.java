@@ -15,8 +15,7 @@ import java.util.List;
  */
 public class GridNoScrollView extends GridView {
     protected GridNoScrollAdapter gridNoScrollAdapter;
-    protected int selectImageMax = 9;
-    protected int selectPosition;
+
     protected List<ImageItem> datas = new ArrayList<>();
 
     public GridNoScrollView(Context context, AttributeSet attrs) {

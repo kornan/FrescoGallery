@@ -20,20 +20,22 @@ import net.kornan.gallery.factory.AlbumHelper;
  * PopupWindow
  * Created by kornan on 16/5/16.
  */
-public final class GalleryPopupWindow extends PopupWindow {
+public final class GalleryPopupWindow extends PopupWindow implements GalleryPopupAdapter.OnItemClickLitener {
 
     private AlbumHelper albumHelper;
     public RecyclerView recyclerView;
     public View conentView;
     private GalleryPopupAdapter galleryPopupAdapter;
+    private Activity activity;
+    private GalleryListener galleryListener;
 
     public GalleryPopupWindow initGallery(Activity activity) {
-
+        this.activity = activity;
         albumHelper = AlbumHelper.getHelper();
         albumHelper.init(activity);
 
         galleryPopupAdapter = new GalleryPopupAdapter(albumHelper.getImagesBucketList());
-
+        galleryPopupAdapter.setOnItemClickLitener(this);
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -56,8 +58,18 @@ public final class GalleryPopupWindow extends PopupWindow {
         return this;
     }
 
+    public void setGalleryListener(GalleryListener galleryListener) {
+        this.galleryListener = galleryListener;
+    }
+
     public final void show(View view) {
         showAtLocation(view, Gravity.BOTTOM, 10, 150);
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+        if (galleryListener != null) {
+            galleryListener.OnBucketChange(view, position);
+        }
+    }
 }

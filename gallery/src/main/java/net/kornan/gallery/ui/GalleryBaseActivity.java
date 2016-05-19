@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 import net.kornan.gallery.factory.AlbumHelper;
 import net.kornan.gallery.factory.ImageItem;
@@ -15,26 +16,20 @@ import net.kornan.gallery.factory.PreviewData;
 import net.kornan.tools.FileUtils;
 import net.kornan.tools.MediaUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 图片选择通用类
  * Created by KORNAN on 2016/3/9.
- *
- * @author: kornan
- * @date: 2016-03-09 09:23
  */
-public abstract class GalleryBaseActivity extends AppCompatActivity{
-
-    private int SELECT_IMAGE_MAX = 9;
+public abstract class GalleryBaseActivity extends AppCompatActivity {
 
     protected static String mPhotoTargetFolder;
     protected Uri mTakePhotoUri;
     protected int mScreenWidth = 720;
     protected int mScreenHeight = 1280;
-
-    protected AlbumHelper helper;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +45,6 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
         DisplayMetrics dm = MediaUtils.getScreenDimen(this);
         mScreenWidth = dm.widthPixels;
         mScreenHeight = dm.heightPixels;
-        helper = AlbumHelper.getHelper();
-        helper.init(getApplicationContext());
     }
 
     @Override
@@ -73,10 +66,21 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
      * 跳转到选择图片
      */
     protected void startGallery(int max) {
-        Intent intent = new Intent(this, ImagesActivity.class);
-        intent.putExtra(ImagesActivity.SELECT_IMAGE_KEY, max);
+        Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_KEY, max);
         startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
     }
+
+    /**
+     * 跳转到选择图片
+     */
+    protected void startGallery(List<ImageItem> selectImages,int max) {
+        Intent intent = new Intent(this, SimpleImageActivity.class);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_KEY, max);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);
+        startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
+    }
+
 
     private int outputX = 300;
     private int outputY = 300;
@@ -95,6 +99,11 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
         this.outputY = outputY;
     }
 
+    /**
+     * 跳转系统裁剪
+     *
+     * @param uri
+     */
     protected void startCutDown(Uri uri) {
         mTakePhotoUri = createTakePhotoUri();
         Intent intent = new Intent("com.android.camera.action.CROP");
@@ -120,19 +129,31 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
     }
 
     /**
+     * 跳转到系统拍照
+     */
+    public void startTakePhoto() {
+        if (!FileUtils.existSDCard()) {
+            Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mTakePhotoUri = createTakePhotoUri();
+        MediaUtils.takePhoto(this, mTakePhotoUri);
+    }
+
+    /**
      * 跳转到预览界面
      *
      * @param imageItems 图片集
      * @param position   从第几张开始，第一张为0
      * @param isResult   是否需要返回数据
      */
-    protected void startPreview(List<ImageItem> imageItems, int position, boolean isDelete,boolean isResult) {
-        Intent intent = new Intent(this, GalleryPreviewActivity.class);
+    protected void startPreview(List<ImageItem> imageItems, int position, boolean isDelete, boolean isResult) {
+        Intent intent = new Intent(this, SimplePreviewActivity.class);
         PreviewData data = new PreviewData();
         data.setImageItems(imageItems);
         data.setDelete(isDelete);
         data.setIndex(position);
-        intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
+        intent.putExtra(SimplePreviewActivity.PREVIEW_TAG, data);
         if (isResult) {
             startActivityForResult(intent, MediaUtils.PREVIEW_IMAGE_ACTIVITY_REQUEST_CODE);
         } else {
@@ -146,28 +167,28 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
      * @param imageItem 图片
      * @param isResult  是否需要返回数据
      */
-    protected void startPreview(ImageItem imageItem, boolean isDelete,boolean isResult) {
+    protected void startPreview(ImageItem imageItem, boolean isDelete, boolean isResult) {
         ArrayList<ImageItem> imgs = new ArrayList<>();
         imgs.add(imageItem);
-        startPreview(imgs, 0, isDelete,isResult);
+        startPreview(imgs, 0, isDelete, isResult);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (MediaUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-//                takePhotoResult(data, mTakePhotoUri);
+                takePhotoResult(data, mTakePhotoUri);
             } else if (MediaUtils.SINGLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-                ArrayList<ImageItem> tmps = (ArrayList<ImageItem>) data.getSerializableExtra(ImagesActivity.SELECT_IMAGE_KEY);
+                ArrayList<ImageItem> tmps = (ArrayList<ImageItem>) data.getSerializableExtra(SimpleImageActivity.SELECT_IMAGE_KEY);
 //                selectImageResult(data, tmps);
             } else if (MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-                ArrayList<ImageItem> tmps = (ArrayList<ImageItem>) data.getSerializableExtra(ImagesActivity.SELECT_IMAGE_KEY);
+                ArrayList<ImageItem> tmps = (ArrayList<ImageItem>) data.getSerializableExtra(SimpleImageActivity.SELECT_IMAGE_KEY);
                 selectMulImageResult(data, tmps);
             } else if (MediaUtils.CUT_DOWN_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
                 cutDownResult(data, mTakePhotoUri);
             } else if (MediaUtils.PREVIEW_IMAGE_ACTIVITY_REQUEST_CODE == requestCode) {
-                ArrayList<ImageItem> items = (ArrayList<ImageItem>) data.getSerializableExtra(GalleryPreviewActivity.PREVIEW_TAG);
-                previewImageResult(data,items);
+                ArrayList<ImageItem> items = (ArrayList<ImageItem>) data.getSerializableExtra(SimplePreviewActivity.PREVIEW_TAG);
+                previewImageResult(data, items);
             }
         } else if (resultCode == RESULT_CANCELED) {
 
@@ -175,23 +196,30 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
     }
 
     /**
+     * 拍照返回处理
+     *
+     * @param data
+     * @param photoUri
+     */
+    protected void takePhotoResult(Intent data, Uri photoUri) {
+    }
+
+    /**
+     * 选择图片返回处理
+     *
+     * @param data
+     * @param imgs
+     */
+    public void selectImageResult(Intent data, ArrayList<ImageItem> imgs) {
+    }
+
+
+    /**
      * 大图预览返回处理
      *
      * @param data
      */
-    public void previewImageResult(Intent data,ArrayList<ImageItem> items) {
-//        ArrayList<ImageItem> items = (ArrayList<ImageItem>) data.getSerializableExtra(GalleryPreviewActivity.PREVIEW_TAG);
-//        if (gridNoScrollAdapter != null) {
-//            gridImageItem.clear();
-//            gridNoScrollAdapter.getList().clear();
-//            if (data != null) {
-//                gridImageItem.addAll(items);
-////                for (ImageItem item : items) {
-////                    gridNoScrollAdapter.add(Uri.fromFile(new File(item.imagePath)));
-////                }
-//            }
-//            gridNoScrollAdapter.notifyDataSetChanged();
-//        }
+    protected void previewImageResult(Intent data, ArrayList<ImageItem> items) {
     }
 
     /**
@@ -209,7 +237,10 @@ public abstract class GalleryBaseActivity extends AppCompatActivity{
      * @param data
      * @param items
      */
-    public abstract void selectMulImageResult(Intent data, ArrayList<ImageItem> items) ;
+    public void selectMulImageResult(Intent data, ArrayList<ImageItem> items) {
+    }
+
+    ;
 
     /**
      * 裁剪图片返回处理

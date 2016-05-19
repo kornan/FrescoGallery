@@ -3,9 +3,7 @@ package net.kornan.gallery.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
@@ -14,7 +12,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
-import net.kornan.gallery.ui.GalleryPreviewActivity;
+import net.kornan.gallery.ui.SimplePreviewActivity;
 import net.kornan.gallery.view.GalleryCheckView;
 
 import java.util.ArrayList;
@@ -59,12 +57,12 @@ public class ImageViewHolder extends GalleryViewHolder {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
 
-                Intent intent = new Intent(v.getContext(), GalleryPreviewActivity.class);
+                Intent intent = new Intent(v.getContext(), SimplePreviewActivity.class);
                 PreviewData data = new PreviewData();
                 ArrayList<ImageItem> imgs = new ArrayList<>();
                 imgs.add(item);
                 data.setImageItems(imgs);
-                intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
+                intent.putExtra(SimplePreviewActivity.PREVIEW_TAG, data);
                 v.getContext().startActivity(intent);
             }
         });

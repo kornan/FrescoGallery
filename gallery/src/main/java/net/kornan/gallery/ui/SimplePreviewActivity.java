@@ -35,17 +35,17 @@ import java.util.ArrayList;
 /**
  * 本地图片预览
  */
-public class GalleryPreviewActivity extends Activity implements View.OnClickListener, OnPageChangeListener,GalleryToolbar.GalleryToolbarLinstener {
+public class SimplePreviewActivity extends Activity implements OnPageChangeListener,GalleryToolbar.GalleryToolbarLinstener {
     public final static String PREVIEW_TAG = "paths";
     public final static String PREVIEW_TITLE_BAR = "title_bar";
 
     private GalleryToolbar toolbar;
 
-
     private ViewPager pager;
     private PreViewPageAdapter adapter;
     private int position = 0;
     public ArrayList<ImageItem> drr = new ArrayList<>();
+
     private void initView() {
 
         toolbar=(GalleryToolbar)findViewById(R.id.gallery_toolbar);
@@ -89,8 +89,6 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
         toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
-//        text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
-//        galleryRecyclerAdapter.notifyDataSetChanged();
     }
 
     private void result() {
@@ -128,24 +126,8 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
                 position = adapter.getCount() - 1;
             }
             toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
-//            text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
             pager.setCurrentItem(position);
         }
-    }
-
-    @Override
-    public void onClick(View v) {
-//        if (R.id.btn_photo_del == v.getId()) {
-//            deleteImage();
-//        } else if (R.id.btn_photo_enter == v.getId()) {
-//            result();
-//        } else if (R.id.rl_back == v.getId()) {
-//            result();
-//        } else if (R.id.btn_photo_exit == v.getId()) {
-//            result();
-//        } else if (R.id.text_photo_number == v.getId()) {
-//            result();
-//        }
     }
 
     private void loadImage(int position) {
@@ -185,7 +167,6 @@ public class GalleryPreviewActivity extends Activity implements View.OnClickList
         Log.e("adapter", "onPageScrolled " + arg0 + " " + arg1 + " " + arg2);
         if (adapter.getCount() > 0) {
             toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
-//            text_photo_number.setText(String.valueOf(position + 1 + " / " + adapter.getCount()));
         }
     }
 

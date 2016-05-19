@@ -51,7 +51,6 @@ public class GalleryToolbar extends RelativeLayout implements Toolbar.OnMenuItem
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.GalleryToolbar);
         type = typedArray.getInt(R.styleable.GalleryToolbar_type, 0);
         typedArray.recycle();
-
         View view = LayoutInflater.from(context).inflate(R.layout.toolbar, this);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
 //        toolbar=(Toolbar) view;
@@ -59,27 +58,7 @@ public class GalleryToolbar extends RelativeLayout implements Toolbar.OnMenuItem
         actionComplete = toolbar.getMenu().findItem(R.id.action_complete);
         actionPreview = toolbar.getMenu().findItem(R.id.action_preview);
         actionDelete = toolbar.getMenu().findItem(R.id.action_delete);
-
-        if (type == TYPE_SELETE) {
-            actionPreview.setVisible(true);
-            actionComplete.setVisible(true);
-            actionDelete.setVisible(false);
-        } else if (type == TYPE_REVIEW) {
-            actionPreview.setVisible(false);
-            actionComplete.setVisible(false);
-            actionDelete.setVisible(false);
-//            toolbar.inflateMenu(R.menu.gallery_preview_toolbar_menu);
-        } else if (type == TYPE_EDIT) {
-//            toolbar.inflateMenu(R.menu.gallery_edit_toolbar_menu);
-            actionPreview.setVisible(false);
-            actionComplete.setVisible(false);
-            actionDelete.setVisible(true);
-        } else {
-            actionPreview.setVisible(false);
-            actionComplete.setVisible(false);
-            actionDelete.setVisible(false);
-        }
-
+        setType(type);
         toolbar.setNavigationOnClickListener(this);
         toolbar.setOnMenuItemClickListener(this);
 //        toolbar.getMenu().getItem(0);

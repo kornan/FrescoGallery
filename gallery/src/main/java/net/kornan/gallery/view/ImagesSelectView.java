@@ -5,17 +5,14 @@ import android.content.res.TypedArray;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.widget.AbsListView;
-import android.widget.GridView;
 import android.widget.RelativeLayout;
 
-import net.kornan.gallery.adapters.GalleryAdapter;
-import net.kornan.gallery.adapters.ImagesAdapter;
 import net.kornan.gallery.R;
+import net.kornan.gallery.adapters.GalleryAdapter;
 import net.kornan.gallery.factory.AlbumHelper;
+import net.kornan.gallery.factory.ImageBucket;
 import net.kornan.gallery.factory.ImageItem;
 
 import java.util.ArrayList;
@@ -100,6 +97,19 @@ public class ImagesSelectView extends RelativeLayout {
         adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect, isDigit, selectedItems);
         gridView.setAdapter(adapter);
         gridView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    /**
+     * 更改图集
+     * @param position
+     */
+    public void updateBucket(int position) {
+        if (helper != null) {
+            ImageBucket bucket = helper.getImagesBucketList().get(position);
+            dataList.clear();
+            dataList.addAll(bucket.imageList);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public void refresh() {

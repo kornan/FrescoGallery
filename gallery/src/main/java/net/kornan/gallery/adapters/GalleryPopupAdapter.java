@@ -23,6 +23,16 @@ public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHo
         this.datas=datas;
     }
 
+    private OnItemClickLitener mOnItemClickLitener;
+
+    public interface OnItemClickLitener {
+        void onItemClick(View view, int position);
+    }
+
+    public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener) {
+        this.mOnItemClickLitener = mOnItemClickLitener;
+    }
+
     @Override
     public GalleryPopupViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_popup_window_item, parent, false);
@@ -30,7 +40,16 @@ public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHo
     }
 
     @Override
-    public void onBindViewHolder(GalleryPopupViewHolder holder, int position) {
+    public void onBindViewHolder(GalleryPopupViewHolder holder, final int position) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mOnItemClickLitener!=null){
+                    mOnItemClickLitener.onItemClick(v,position);
+                }
+            }
+        });
+
         ImageBucket bucket=datas.get(position);
         holder.bucketName.setText(bucket.bucketName);
         holder.bucketSize.setText(String.valueOf(bucket.imageList.size()));

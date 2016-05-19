@@ -9,28 +9,19 @@ import android.widget.Toast;
 
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.ui.GalleryBaseActivity;
-import net.kornan.gallery.ui.ImagesActivity;
 import net.kornan.gallery.view.GridNoScrollView;
 import net.kornan.tools.FileUtils;
-import net.kornan.tools.MediaUtils;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class MainActivity extends GalleryBaseActivity implements AdapterView.OnItemClickListener {
-    private int SELECT_IMAGE_MAX = 20;
+    private static final int SELECT_IMAGE_MAX = 20;
 
     @InjectView(R.id.gridview)
     GridNoScrollView gridview;
-
-    @InjectView(R.id.btn_select)
-    Button btn_select;
-
-    int selectImageMax=10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +30,6 @@ public class MainActivity extends GalleryBaseActivity implements AdapterView.OnI
         ButterKnife.inject(this);
         gridview.setOnItemClickListener(this);
     }
-
-//    @OnClick(R.id.btn_select)
-//    void startSelect() {
-//        Intent intent = new Intent(this, DemoActivity.class);
-//        startActivity(intent);
-//    }
-
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -58,7 +42,6 @@ public class MainActivity extends GalleryBaseActivity implements AdapterView.OnI
 //                startGallery(selectImageMax);
                 startGallery(gridview.getDatas(),SELECT_IMAGE_MAX);
             } else {
-//                startPreview(gridImageItem, position, true);
                 startPreview(gridview.getDatas(),position,true,true);
             }
     }
@@ -80,24 +63,4 @@ public class MainActivity extends GalleryBaseActivity implements AdapterView.OnI
             gridview.getGridNoScrollAdapter().notifyDataSetChanged();
         }
     }
-
-    /**
-     * 跳转到选择图片
-     */
-    protected void startGallery(int max) {
-        Intent intent = new Intent(this, DemoActivity.class);
-        intent.putExtra(ImagesActivity.SELECT_IMAGE_KEY, max);
-        startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
-    }
-
-    /**
-     * 跳转到选择图片
-     */
-    protected void startGallery(List<ImageItem> selectImages,int max) {
-        Intent intent = new Intent(this, DemoActivity.class);
-        intent.putExtra(DemoActivity.SELECT_IMAGE_KEY, max);
-        intent.putExtra(DemoActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);
-        startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
-    }
-
 }

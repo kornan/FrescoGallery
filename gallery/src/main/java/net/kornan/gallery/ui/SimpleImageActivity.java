@@ -1,27 +1,21 @@
-package net.kornan.demo;
+package net.kornan.gallery.ui;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import net.kornan.gallery.R;
 import net.kornan.gallery.factory.AlbumHelper;
-import net.kornan.gallery.factory.ImageBucket;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
-import net.kornan.gallery.ui.GalleryPreviewActivity;
 import net.kornan.gallery.view.CameraClickLinstener;
 import net.kornan.gallery.view.GalleryListener;
 import net.kornan.gallery.view.GalleryPopupWindow;
@@ -34,24 +28,19 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-
-public class DemoActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener,GalleryToolbar.GalleryToolbarLinstener {
+/**
+ * 相册选择实现类
+ * Created by kornan on 16/5/19.
+ */
+public class SimpleImageActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener, GalleryToolbar.GalleryToolbarLinstener{
     public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
     public final static String SELECT_IMAGE_DATA = "SELECT_IMAGE_DATA";
-    @InjectView(R.id.imageSelect)
-    ImagesSelectView imageSelect;
 
-    @InjectView(R.id.gallery_toolbar)
-    GalleryToolbar galleryToolbar;
-
-    @InjectView(R.id.btn_menu)
-    Button btnMenu;
-
-    @InjectView(R.id.rl_bottm)
-    View rl_bottm;
+    private ImagesSelectView imageSelect;
+    private GalleryToolbar galleryToolbar;
+    private Button btnMenu;
+    private View rl_bottm;
 
     protected Uri mTakePhotoUri;
     protected MediaScannerConnection msc;
@@ -63,8 +52,12 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     protected void onCreate(Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_demo);
-        ButterKnife.inject(this);
+        setContentView(R.layout.activity_simple_image);
+
+        rl_bottm=findViewById(R.id.rl_bottm);
+        btnMenu=(Button)findViewById(R.id.btn_menu);
+        galleryToolbar=(GalleryToolbar)findViewById(R.id.gallery_toolbar);
+        imageSelect=(ImagesSelectView)findViewById(R.id.imageSelect);
 
         initData();
 
@@ -79,7 +72,8 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             @Override
             public void onClick(View v) {
                 if (galleryPopupWindow == null) {
-                    galleryPopupWindow = new GalleryPopupWindow().initGallery(DemoActivity.this);
+                    galleryPopupWindow = new GalleryPopupWindow().initGallery(SimpleImageActivity.this);
+                    galleryPopupWindow.setGalleryListener(SimpleImageActivity.this);
                 }
                 if (galleryPopupWindow.isShowing()) {
                     galleryPopupWindow.dismiss();
@@ -103,20 +97,9 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     }
 
     @Override
-    public void OnBucketChange() {
+    public void OnBucketChange(View view, int position) {
         galleryPopupWindow.dismiss();
-
-//        ImageBucket bucket =  AlbumHelper.getHelper().init().getSelectedFolder();
-//        if( !TextUtils.equals(bucket.path, this.currentFolderPath) ) {
-//            this.currentFolderPath = bucket.path;
-//            mFolderSelectButton.setText(bucket.bucketName);
-//
-//            ImageListContent.IMAGES.clear();
-//            ImageListContent.IMAGES.addAll(bucket.imageList);
-        imageSelect.getAdapter().notifyDataSetChanged();
-//        } else {
-//            Log.d(TAG, "OnFolderChange: " + "Same folder selected, skip loading.");
-//        }
+        imageSelect.updateBucket(position);
     }
 
     @Override
@@ -125,7 +108,6 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             imageSelect.destroy();
         }
         super.onDestroy();
-
     }
 
     protected void result(List<ImageItem> imageItems) {
@@ -182,13 +164,7 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
         selectedItems = (List<ImageItem>) savedInstanceState.getSerializable("selectedItems");
     }
 
-    /**
-     * 拍照返回处理
-     *
-     * @param data
-     * @param photoUri
-     */
-    public void takePhotoResult(Intent data, Uri photoUri) {
+    protected void takePhotoResult(Intent data, Uri photoUri) {
 //        try {
 //            MediaStore.Images.Media.insertImage(getContentResolver(), photoUri.getPath(), "title", "description");
         msc = new MediaScannerConnection(this, this);
@@ -213,18 +189,12 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
             } else {
                 imageSelect.getDataList().add(imageItem);
             }
+            //1:添加到所有相册;
+            //2:以及添加到对应图集(未处理)
             imageItem.isSelected = true;
-            imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size();
+            imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size()+1;
             imageSelect.getAdapter().getSelectedItems().add(imageItem);
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    imageSelect.getAdapter().refreshIndex();
-//                    imageSelect.getAdapter().notifyItemInserted(1);
-                }
-            });
-
+            onComplete();
         } else {
             runOnUiThread(new Runnable() {
                 @Override
@@ -249,10 +219,10 @@ public class DemoActivity extends AppCompatActivity implements GalleryListener, 
     @Override
     public void onShowBigImage() {
         if (imageSelect.getAdapter().getSelectedItems().size() > 0) {
-            Intent intent = new Intent(this, GalleryPreviewActivity.class);
+            Intent intent = new Intent(this, SimplePreviewActivity.class);
             PreviewData data = new PreviewData();
             data.setImageItems(imageSelect.getAdapter().getSelectedItems());
-            intent.putExtra(GalleryPreviewActivity.PREVIEW_TAG, data);
+            intent.putExtra(SimplePreviewActivity.PREVIEW_TAG, data);
             startActivity(intent);
         } else {
             Toast.makeText(this, "请选择图片！", Toast.LENGTH_LONG).show();
