@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.AlbumHelper;
+import net.kornan.gallery.factory.ImageBucket;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.view.CameraClickLinstener;
@@ -32,7 +33,7 @@ import java.util.List;
  * 相册选择实现类
  * Created by kornan on 16/5/19.
  */
-public class SimpleImageActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener, GalleryToolbar.GalleryToolbarLinstener{
+public class SimpleImageActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener, GalleryToolbar.GalleryToolbarLinstener {
     public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
     public final static String SELECT_IMAGE_DATA = "SELECT_IMAGE_DATA";
@@ -54,10 +55,10 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_image);
 
-        rl_bottm=findViewById(R.id.rl_bottm);
-        btnMenu=(Button)findViewById(R.id.btn_menu);
-        galleryToolbar=(GalleryToolbar)findViewById(R.id.gallery_toolbar);
-        imageSelect=(ImagesSelectView)findViewById(R.id.imageSelect);
+        rl_bottm = findViewById(R.id.rl_bottm);
+        btnMenu = (Button) findViewById(R.id.btn_menu);
+        galleryToolbar = (GalleryToolbar) findViewById(R.id.gallery_toolbar);
+        imageSelect = (ImagesSelectView) findViewById(R.id.imageSelect);
 
         initData();
 
@@ -82,7 +83,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
                 }
             }
         });
-
+        btnMenu.setText("所有图片");
         Log.d(TAG, "onCreate " + selectedItems);
 //        if(selectedItems==null){
 //            selectedItems = imageSelect.getSelectedItems();
@@ -100,6 +101,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     public void OnBucketChange(View view, int position) {
         galleryPopupWindow.dismiss();
         imageSelect.updateBucket(position);
+        btnMenu.setText(imageSelect.getCurrentBucket().bucketName);
     }
 
     @Override
@@ -192,7 +194,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
             //1:添加到所有相册;
             //2:以及添加到对应图集(未处理)
             imageItem.isSelected = true;
-            imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size()+1;
+            imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size() + 1;
             imageSelect.getAdapter().getSelectedItems().add(imageItem);
             onComplete();
         } else {

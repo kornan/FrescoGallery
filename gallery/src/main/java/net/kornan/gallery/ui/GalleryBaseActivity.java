@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 
-import net.kornan.gallery.factory.AlbumHelper;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.tools.FileUtils;
@@ -75,6 +74,10 @@ public abstract class GalleryBaseActivity extends AppCompatActivity {
      * 跳转到选择图片
      */
     protected void startGallery(List<ImageItem> selectImages,int max) {
+        if (!FileUtils.existSDCard()) {
+            Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(this, SimpleImageActivity.class);
         intent.putExtra(SimpleImageActivity.SELECT_IMAGE_KEY, max);
         intent.putExtra(SimpleImageActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);

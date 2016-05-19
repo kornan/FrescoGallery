@@ -1,5 +1,6 @@
 package net.kornan.gallery.adapters;
 
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,7 +8,9 @@ import android.view.ViewGroup;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageBucket;
+import net.kornan.tools.ImageUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,12 +18,12 @@ import java.util.List;
  * PopupAdapter
  * Created by kornan on 16/5/16.
  */
-public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHolder>{
+public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHolder> {
 
-    private List<ImageBucket> datas=new ArrayList<>();
+    private List<ImageBucket> datas = new ArrayList<>();
 
     public GalleryPopupAdapter(List<ImageBucket> datas) {
-        this.datas=datas;
+        this.datas = datas;
     }
 
     private OnItemClickLitener mOnItemClickLitener;
@@ -44,15 +47,18 @@ public class GalleryPopupAdapter extends RecyclerView.Adapter<GalleryPopupViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mOnItemClickLitener!=null){
-                    mOnItemClickLitener.onItemClick(v,position);
+                if (mOnItemClickLitener != null) {
+                    mOnItemClickLitener.onItemClick(v, position);
                 }
             }
         });
 
-        ImageBucket bucket=datas.get(position);
+        ImageBucket bucket = datas.get(position);
+        if (bucket.count > 0) {
+            ImageUtils.resizeImageViewForScreen(holder.bucketImage, Uri.fromFile(new File(bucket.imageList.get(bucket.imageList.size()-1).imagePath)), 150, 150);
+        }
         holder.bucketName.setText(bucket.bucketName);
-        holder.bucketSize.setText(String.valueOf(bucket.imageList.size()));
+        holder.bucketSize.setText(String.valueOf(bucket.count));
     }
 
     @Override

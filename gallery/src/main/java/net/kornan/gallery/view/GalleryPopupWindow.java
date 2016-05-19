@@ -46,7 +46,6 @@ public final class GalleryPopupWindow extends PopupWindow implements GalleryPopu
 //        recyclerView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL, 0));
         recyclerView.setAdapter(galleryPopupAdapter);
 
-
         this.setContentView(conentView);
         this.setWidth(dm.widthPixels);
         this.setHeight((int) (dm.heightPixels * 0.80));

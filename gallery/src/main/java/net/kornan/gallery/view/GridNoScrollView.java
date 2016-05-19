@@ -14,14 +14,14 @@ import java.util.List;
  * @date: 2016-03-04 16:30
  */
 public class GridNoScrollView extends GridView {
-    protected GridNoScrollAdapter gridNoScrollAdapter;
+    protected GridNoScrollAdapter adapter;
 
     protected List<ImageItem> datas = new ArrayList<>();
 
     public GridNoScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        gridNoScrollAdapter = new GridNoScrollAdapter(context,datas);
-        this.setAdapter(gridNoScrollAdapter);
+        adapter = new GridNoScrollAdapter(context, datas);
+        this.setAdapter(adapter);
     }
 
     public List<ImageItem> getDatas() {
@@ -32,8 +32,14 @@ public class GridNoScrollView extends GridView {
         this.datas = datas;
     }
 
-    public GridNoScrollAdapter getGridNoScrollAdapter(){
-        return gridNoScrollAdapter;
+    public GridNoScrollAdapter getGridNoScrollAdapter() {
+        return adapter;
+    }
+
+    public void reset(List<ImageItem> datas) {
+        getDatas().clear();
+        getDatas().addAll(datas);
+        adapter.notifyDataSetChanged();
     }
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

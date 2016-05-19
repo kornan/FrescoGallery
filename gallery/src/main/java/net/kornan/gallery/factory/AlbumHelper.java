@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.io.File;
@@ -42,6 +43,11 @@ public class AlbumHelper implements IAlbum {
      * 所有图片列表
      */
     List<ImageItem> imageItems = new ArrayList<>();
+
+    /**
+     * 图片总数
+     */
+    private int totalNum = 0;
     /**
      * 是否已获取所有图片列表
      */
@@ -135,20 +141,17 @@ public class AlbumHelper implements IAlbum {
     public List<ImageItem> getAllImagesItemList() {
         if (!hasBuildImagesItemList) {
             buildImagesBucketList();
-            return imageItems;
-        } else {
-            return imageItems;
         }
+        addTakePhone();
+        return imageItems;
     }
 
     @Override
     public HashMap<String, ImageBucket> getAllImagesBucketList() {
         if (!hasBuildImagesItemList) {
             buildImagesBucketList();
-            return bucketList;
-        } else {
-            return bucketList;
         }
+        return bucketList;
     }
 
 
@@ -181,7 +184,7 @@ public class AlbumHelper implements IAlbum {
             int bucketIdIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
             int picasaIdIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.PICASA_ID);
 
-            int totalNum = cur.getCount();
+            totalNum = cur.getCount();
 
             do {
                 String _id = cur.getString(photoIDIndex);
@@ -211,13 +214,13 @@ public class AlbumHelper implements IAlbum {
                 imageItem.imageId = _id;
                 imageItem.imagePath = path;
 //                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
-                bucket.path=new File(path).getParentFile().getAbsolutePath();
+                bucket.path = new File(path).getParentFile().getAbsolutePath();
                 bucket.imageList.add(imageItem);
                 imageItems.add(imageItem);
 
             } while (cur.moveToNext());
         }
-        addTakePhone();
+//        addTakePhone();
         hasBuildImagesItemList = true;
     }
 
@@ -236,14 +239,25 @@ public class AlbumHelper implements IAlbum {
             getAllImagesBucketList();
         }
         List<ImageBucket> tmpList = new ArrayList<ImageBucket>();
-        Iterator<Map.Entry<String, ImageBucket>> itr = bucketList.entrySet()
-                .iterator();
-        while (itr.hasNext()) {
-            Map.Entry<String, ImageBucket> entry = (Map.Entry<String, ImageBucket>) itr
-                    .next();
+        for (Map.Entry<String, ImageBucket> entry : bucketList.entrySet()) {
             tmpList.add(entry.getValue());
         }
+        addAllImageBucket(tmpList);
         return tmpList;
+    }
+
+    /**
+     * 添加所有图片bucket
+     *
+     * @param datas 列表
+     */
+    private void addAllImageBucket(List<ImageBucket> datas) {
+        ImageBucket bucket = new ImageBucket();
+        bucket.imageList = new ArrayList<>();
+        bucket.imageList.addAll(imageItems);
+        bucket.bucketName = "所有图片";
+        bucket.count = totalNum;
+        datas.add(0, bucket);
     }
 
 //    @Override
@@ -328,24 +342,6 @@ public class AlbumHelper implements IAlbum {
                 }
                 cursor.close();
             }
-//            Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA}, MediaStore.Images.Media.DATA + " == '" + uri.getPath() + "'", null, null);
-//            if (null != cursor) {
-//                if (cursor.moveToFirst()) {
-//                    int photoIDIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-//                    int photoPathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//                    if (photoPathIndex > -1) {
-////                        data = cursor.getString(photoPathIndex);
-//                        String _id = cursor.getString(photoIDIndex);
-//                        String path = cursor.getString(photoPathIndex);
-//
-//                        imageItem = new ImageItem();
-//                        imageItem.imageId = _id;
-//                        imageItem.imagePath = path;
-////                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
-//                    }
-//                }
-//                cursor.close();
-//            }
         }
         return imageItem;
     }
@@ -403,7 +399,7 @@ public class AlbumHelper implements IAlbum {
     /**
      * 重置项
      */
-    public void reset(List<ImageItem> items,boolean flag) {
+    public void reset(List<ImageItem> items, boolean flag) {
 
         for (ImageItem item : items) {
             item.isSelected = flag;

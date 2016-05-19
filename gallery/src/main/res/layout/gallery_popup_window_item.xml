@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:layout_toRightOf="@+id/bucket_cover_image"
+        android:layout_toRightOf="@id/bucket_cover_image"
         android:orientation="vertical">
         <!--android:layout_toLeftOf="@+id/folder_selected_indicator"-->
 

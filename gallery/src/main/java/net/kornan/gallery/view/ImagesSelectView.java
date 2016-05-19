@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class ImagesSelectView extends RelativeLayout {
 
-    protected List<ImageItem> dataList;
+    protected List<ImageItem> dataList = new ArrayList<>();
     protected RecyclerView gridView;
     protected GalleryAdapter adapter;
     private AlbumHelper helper;
@@ -39,7 +39,7 @@ public class ImagesSelectView extends RelativeLayout {
     private boolean multiSelect = true;
     private boolean isDigit = true;
     private List<ImageItem> selectedItems = new ArrayList<>();
-
+    private ImageBucket currentBucket;
     public ImagesSelectView(Context context) {
         super(context);
         init(context, null);
@@ -92,7 +92,7 @@ public class ImagesSelectView extends RelativeLayout {
         gridView = (RecyclerView) findViewById(R.id.image_grid);
         helper = AlbumHelper.getHelper();
         helper.init(getContext().getApplicationContext());
-        dataList = helper.getAllImagesItemList();
+        dataList.addAll(helper.getAllImagesItemList());
         gridView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect, isDigit, selectedItems);
         gridView.setAdapter(adapter);
@@ -101,15 +101,20 @@ public class ImagesSelectView extends RelativeLayout {
 
     /**
      * 更改图集
+     *
      * @param position
      */
     public void updateBucket(int position) {
         if (helper != null) {
-            ImageBucket bucket = helper.getImagesBucketList().get(position);
+            currentBucket = helper.getImagesBucketList().get(position);
             dataList.clear();
-            dataList.addAll(bucket.imageList);
+            dataList.addAll(currentBucket.imageList);
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public ImageBucket getCurrentBucket() {
+        return currentBucket;
     }
 
     public void refresh() {

@@ -33,34 +33,26 @@ public class MainActivity extends GalleryBaseActivity implements AdapterView.OnI
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (gridview.getGridNoScrollAdapter().isCanAdd(position)) {
-                if (!FileUtils.existSDCard()) {
-                    Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        if (gridview.getGridNoScrollAdapter().isCanAdd(position)) {
 //                selectImageMax = SELECT_IMAGE_MAX - gridview.getDatas().size();
 //                startGallery(selectImageMax);
-                startGallery(gridview.getDatas(),SELECT_IMAGE_MAX);
-            } else {
-                startPreview(gridview.getDatas(),position,true,true);
-            }
+            startGallery(gridview.getDatas(), SELECT_IMAGE_MAX);
+        } else {
+            startPreview(gridview.getDatas(), position, true, true);
+        }
     }
 
     @Override
     public void selectMulImageResult(Intent data, ArrayList<ImageItem> items) {
         if (items != null) {
-            gridview.getDatas().clear();
-            gridview.getDatas().addAll(items);
-            gridview.getGridNoScrollAdapter().notifyDataSetChanged();
+            gridview.reset(items);
         }
     }
 
     @Override
     public void previewImageResult(Intent data, ArrayList<ImageItem> items) {
-        if(items!=null){
-            gridview.getDatas().clear();
-            gridview.getDatas().addAll(items);
-            gridview.getGridNoScrollAdapter().notifyDataSetChanged();
+        if (items != null) {
+            gridview.reset(items);
         }
     }
 }
