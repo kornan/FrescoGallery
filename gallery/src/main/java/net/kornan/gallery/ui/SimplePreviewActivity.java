@@ -83,7 +83,6 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
                     LayoutParams.MATCH_PARENT));
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             adapter.add(imageView);
-            loadImage(i, i != position);
         }
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
@@ -139,7 +138,6 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
 
         } else {
             adapter.getView(position).setImageUri(bigUri, null);
-
 //            adapter.getView(position).setImageUri(bigUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
 //            adapter.getView(position).setImageURI(bigUri);
         }
@@ -151,43 +149,27 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
 //        }
     }
 
-//    private boolean isScrolling = false;
-//    private boolean left = false;
-//    private boolean right = false;
 
     @Override
     public void onPageScrollStateChanged(int arg0) {
         // TODO Auto-generated method stub
-//        Log.e("adapter", "onPageScrollStateChanged=" + arg0);
-//        if (arg0 == 1) {
-//            isScrolling = true;
-//        } else {
-//            isScrolling = false;
-//        }
-//
-//        if (arg0 == 2) {
-//            right = left = false;
-//        }
+        if(ViewPager.SCROLL_STATE_IDLE==arg0){
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onPageScrolled(int arg0, float arg1, int arg2) {
         // TODO Auto-generated method stub
-//        Log.e("adapter", "onPageScrolled " + arg0 + " " + arg1 + " " + arg2);
     }
 
     @Override
     public void onPageSelected(int arg0) {
         // TODO Auto-generated method stub
-//        Log.e("adapter", "onPageSelected " + arg0 );
         position = arg0;
         if (adapter.getCount() > 0) {
             toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
         }
-//        if (adapter.getView(position).isActivated() && adapter.getView(position).getVisibleRectangleBitmap().isRecycled()) {
-//            Log.e("adapter", "onPageSelected " + arg0 );
-        loadImage(position, false);
-//        }
     }
 
     @Override
@@ -253,6 +235,7 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         @Override
         public Object instantiateItem(ViewGroup arg0, int arg1) {
             try {
+                loadImage(arg1, false);
                 arg0.addView(listViews.get(arg1 % getCount()), 0);
             } catch (Exception e) {
                 e.printStackTrace();
