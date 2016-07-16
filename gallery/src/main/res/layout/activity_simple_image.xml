@@ -21,7 +21,7 @@
             android:id="@+id/imageSelect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            gallery:isDigit="false"
+            gallery:isDigit="true"
             gallery:multiSelect="true"
             gallery:optionalMax="5" />
 

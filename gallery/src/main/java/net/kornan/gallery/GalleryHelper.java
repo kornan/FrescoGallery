@@ -9,6 +9,7 @@ import com.facebook.common.memory.MemoryTrimType;
 import com.facebook.common.memory.MemoryTrimmable;
 import com.facebook.common.memory.NoOpMemoryTrimmableRegistry;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.cache.DefaultEncodedMemoryCacheParamsSupplier;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.core.ImagePipelineFactory;
 import com.facebook.imagepipeline.decoder.SimpleProgressiveJpegConfig;
@@ -42,12 +43,6 @@ public class GalleryHelper {
                 .setBaseDirectoryPath(diskCache)
                 .build();
 
-        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(application)
-                .setProgressiveJpegConfig(new SimpleProgressiveJpegConfig())
-                .setDownsampleEnabled(true)//如果false，只支持JPG;
-                .setMainDiskCacheConfig(diskCacheConfig)//设置本地缓存目录
-                .build();
-
         NoOpMemoryTrimmableRegistry.getInstance().registerMemoryTrimmable(new MemoryTrimmable() {
             @Override
             public void trim(MemoryTrimType trimType) {
@@ -61,6 +56,15 @@ public class GalleryHelper {
                 }
             }
         });
+
+        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(application)
+                .setProgressiveJpegConfig(new SimpleProgressiveJpegConfig())
+                .setDownsampleEnabled(true)//如果false，只支持JPG;
+                .setMainDiskCacheConfig(diskCacheConfig)//设置本地缓存目录
+                .setMemoryTrimmableRegistry(NoOpMemoryTrimmableRegistry.getInstance())
+                .setEncodedMemoryCacheParamsSupplier(new DefaultEncodedMemoryCacheParamsSupplier())
+                .build();
+
 
         Fresco.initialize(application, config);
 

@@ -26,6 +26,7 @@ import net.kornan.gallery.view.GalleryPopupWindow;
 import net.kornan.gallery.view.GalleryToolbar;
 import net.kornan.gallery.view.ImagesSelectView;
 import net.kornan.tools.FileUtils;
+import net.kornan.tools.ImageUtils;
 import net.kornan.tools.MediaUtils;
 
 import java.io.File;
@@ -179,6 +180,8 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     }
 
     protected void takePhotoResult(Intent data, Uri photoUri) {
+//        ImageUtils.setImageRotate(photoUri.getPath(), 90, displayMetrics.widthPixels, displayMetrics.heightPixels, 100);
+
 //        try {
 //            MediaStore.Images.Media.insertImage(getContentResolver(), photoUri.getPath(), "title", "description");
         msc = new MediaScannerConnection(this, this);
