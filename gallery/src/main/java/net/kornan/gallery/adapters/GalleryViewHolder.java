@@ -16,7 +16,7 @@ import java.io.File;
  * 相册胶卷 ViewHolder
  * Created by kornan on 16/5/11.
  */
-public abstract class GalleryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+public abstract class GalleryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     protected Context context;
     protected GalleryAdapter adapter;
 
@@ -30,6 +30,8 @@ public abstract class GalleryViewHolder extends RecyclerView.ViewHolder implemen
     public abstract void bindData(ImageItem arg0, int arg1);
 
     public void setImageViewForCache(String imageUrl, SimpleDraweeView imageView) {
-        ImageUtils.resizeImageViewForScreen(imageView, Uri.fromFile(new File(imageUrl)), 150, 150);
+        int width = context.getResources().getDisplayMetrics().widthPixels / 4;
+        if (width > 300) width = 300;
+        ImageUtils.resizeImageViewForScreen(imageView, Uri.fromFile(new File(imageUrl)), width, width);
     }
 }
