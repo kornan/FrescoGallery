@@ -1,11 +1,14 @@
 package net.kornan.gallery.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +40,11 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
     public final static String SELECT_IMAGE_DATA = "SELECT_IMAGE_DATA";
+
+    public final static String SELECT_FILTER_WIDTH = "select_filter_width";
+    public final static String SELECT_FILTER_HEIGHT = "select_filter_height";
+
+    public final static String SELECT_MULTI = "select_multi";
 
     private ImagesSelectView imageSelect;
     private GalleryToolbar galleryToolbar;
@@ -200,14 +208,15 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
             imageItem.isSelected = true;
             imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size() + 1;
             imageSelect.getAdapter().getSelectedItems().add(imageItem);
+//                imageSelect.refresh();
             onComplete();
         } else {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT).show();
-                }
-            });
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT).show();
+//                }
+//            });
         }
         msc.disconnect();
     }
@@ -244,4 +253,83 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     public void onCancel() {
         finish();
     }
+
+
+    /**
+     * 到图片库(多选)
+     *
+     * @param activity     启动图库界面
+     * @param selectImages 已选图片
+     * @param max          多选时的最大值
+     * @param minWidth     限制图片的最小宽度
+     * @param minHeight    限制图片的最小高度
+     * @param multi        是否多选状态
+     * @param requestCode  请求标识
+     */
+    public static void launch(Activity activity, @Nullable List<ImageItem> selectImages, int max, int minWidth, int minHeight, boolean multi, int requestCode) {
+        if (!FileUtils.existSDCard()) {
+            Toast.makeText(activity, "SD卡不存在", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AlbumHelper helper = AlbumHelper.getHelper();
+        helper.refresh(minWidth, minHeight);
+
+        Intent intent = new Intent(activity, SimpleImageActivity.class);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_KEY, max);
+        intent.putExtra(SimpleImageActivity.SELECT_MULTI, multi);
+        intent.putExtra(SimpleImageActivity.SELECT_FILTER_WIDTH, minWidth);
+        intent.putExtra(SimpleImageActivity.SELECT_FILTER_HEIGHT, minHeight);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);
+        activity.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * 到图片库(多选)
+     *
+     * @param fragment     启动图库界面
+     * @param selectImages 已选图片
+     * @param max          多选时的最大值
+     * @param minWidth     限制图片的最小宽度
+     * @param minHeight    限制图片的最小高度
+     * @param multi        是否多选状态
+     * @param requestCode  请求标识
+     */
+    public static void launch(Fragment fragment, @Nullable List<ImageItem> selectImages, int max, int minWidth, int minHeight, boolean multi, int requestCode) {
+        if (!FileUtils.existSDCard()) {
+            Toast.makeText(fragment.getContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AlbumHelper helper = AlbumHelper.getHelper();
+        helper.refresh(minWidth, minHeight);
+
+        Intent intent = new Intent(fragment.getContext(), SimpleImageActivity.class);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_KEY, max);
+        intent.putExtra(SimpleImageActivity.SELECT_MULTI, multi);
+        intent.putExtra(SimpleImageActivity.SELECT_FILTER_WIDTH, minWidth);
+        intent.putExtra(SimpleImageActivity.SELECT_FILTER_HEIGHT, minHeight);
+        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);
+        fragment.startActivityForResult(intent, requestCode);
+    }
+
+
+    /**
+     * @param activity    启动图库界面
+     * @param minWidth    限制图片的最小宽度
+     * @param minHeight   限制图片的最小高度
+     * @param requestCode 请求标识
+     */
+    public static void launch(Activity activity, int minWidth, int minHeight, int requestCode) {
+        launch(activity, null, 1, minWidth, minHeight, false, requestCode);
+    }
+
+    /**
+     * @param fragment    启动图库界面
+     * @param minWidth    限制图片的最小宽度
+     * @param minHeight   限制图片的最小高度
+     * @param requestCode 请求标识
+     */
+    public static void launch(Fragment fragment, int minWidth, int minHeight, int requestCode) {
+        launch(fragment, null, 1, minWidth, minHeight, false, requestCode);
+    }
+
 }

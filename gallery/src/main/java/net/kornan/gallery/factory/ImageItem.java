@@ -40,4 +40,9 @@ public class ImageItem implements Serializable {
      * item类型：CAMERA为拍照,默认为IMAGE
      */
     public Type type=Type.IMAGE;
+
+    /**
+     * 图片的最新日期
+     */
+    public Long dateModified;
 }

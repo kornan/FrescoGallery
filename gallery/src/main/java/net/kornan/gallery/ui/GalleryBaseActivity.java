@@ -73,15 +73,26 @@ public abstract class GalleryBaseActivity extends AppCompatActivity {
     /**
      * 跳转到选择图片
      */
-    protected void startGallery(List<ImageItem> selectImages,int max) {
-        if (!FileUtils.existSDCard()) {
-            Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent intent = new Intent(this, SimpleImageActivity.class);
-        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_KEY, max);
-        intent.putExtra(SimpleImageActivity.SELECT_IMAGE_DATA, (Serializable) selectImages);
-        startActivityForResult(intent, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
+    protected void startGallery(List<ImageItem> selectImages, int max) {
+        startGallery(selectImages, max, 0, 0);
+    }
+
+    public void startGallery(int minWidth, int minHeight) {
+        SimpleImageActivity.launch(this, minWidth, minHeight, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
+    }
+
+    /**
+     * 跳转到多选图片
+     */
+    protected void startGallery(int max, int minWidth, int minHeight) {
+        SimpleImageActivity.launch(this, null, max, minWidth, minHeight, true, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
+    }
+
+    /**
+     * 跳转到多选图片
+     */
+    protected void startGallery(List<ImageItem> selectImages, int max, int minWidth, int minHeight) {
+        SimpleImageActivity.launch(this, selectImages, max, minWidth, minHeight, true, MediaUtils.MULTIPLE_SELECT_IMAGE_ACTIVITY_REQUEST_CODE);
     }
 
 

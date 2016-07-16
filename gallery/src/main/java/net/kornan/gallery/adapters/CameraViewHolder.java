@@ -37,7 +37,7 @@ public class CameraViewHolder extends GalleryViewHolder {
             return;
         }
         if (adapter.cameraClickLinstener != null) {
-            adapter.cameraClickLinstener.cameraClick(itemView);
+            adapter.cameraClickLinstener.onCameraClick(itemView);
         }
     }
 }

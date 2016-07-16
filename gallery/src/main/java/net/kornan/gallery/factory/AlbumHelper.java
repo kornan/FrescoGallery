@@ -5,13 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +53,7 @@ public class AlbumHelper implements IAlbum {
     private AlbumHelper() {
     }
 
-    public static AlbumHelper getHelper() {
+    public synchronized static AlbumHelper getHelper() {
         if (instance == null) {
             instance = new AlbumHelper();
         }
@@ -68,50 +65,42 @@ public class AlbumHelper implements IAlbum {
      *
      * @param context 上下文
      */
-    public void init(Context context) {
+    public synchronized void init(Context context) {
+        init(context, 0, 0);
+    }
+
+    /**
+     * 初始化
+     *
+     * @param context 上下文
+     */
+    public synchronized void init(Context context, int minWidth, int minHeight) {
         if (this.context == null) {
             this.context = context;
             cr = context.getContentResolver();
         }
+        AlbumFilter.getInstance(context).setFilter(minWidth, minHeight);
     }
 
-//    @Override
-//    public List<ImageItem> getAllImagesItemList() {
-//        if (!hasBuildImagesItemList) {
-//            String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
-//            Cursor cur;
-//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-//                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
-//                        MediaStore.Images.Media._ID + " desc");
-//            } else {
-//                cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
-//                        MediaStore.Images.Media._ID + " desc");
-//            }
-//            if (cur != null && cur.moveToFirst()) {
-//                int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-//                int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//                do {
-//                    String _id = cur.getString(photoIDIndex);
-//                    String path = cur.getString(photoPathIndex);
-//
-//                    ImageItem imageItem = new ImageItem();
-//                    imageItem.imageId = _id;
-//                    imageItem.imagePath = path;
-////                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
-//                    imageItems.add(imageItem);
-//
-//                } while (cur.moveToNext());
-//            }
-//            addTakePhone();
-//            hasBuildImagesItemList = true;
-//        }
-//        return imageItems;
-//    }
-
+    /**
+     * 刷新数据
+     *
+     * @return
+     */
     public List<ImageItem> refresh() {
         imageItems.clear();
         hasBuildImagesItemList = false;
         return getAllImagesItemList();
+    }
+
+    /**
+     * 刷新数据
+     *
+     * @return
+     */
+    public List<ImageItem> refresh(int minWidth, int minHeight) {
+        AlbumFilter.getInstance(context).setFilter(minWidth, minHeight);
+        return refresh();
     }
 
     /**
@@ -159,20 +148,18 @@ public class AlbumHelper implements IAlbum {
 
         String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.PICASA_ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.TITLE,
-                MediaStore.Images.Media.SIZE, MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
-        Cursor cur;
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-//            cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, MediaStore.Images.Media.WIDTH + " >=300 and " + MediaStore.Images.Media.HEIGHT + ">=300", null,
-//                    MediaStore.Images.Media._ID + " desc");
-//        } else {
-//            cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,
-//                    MediaStore.Images.Media._ID + " desc");
-//        }
+                MediaStore.Images.Media.SIZE, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATE_MODIFIED};
 
-        //        Cursor cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null,null);
-        cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "width >=300 and height>=300", null,
-                MediaStore.Images.Media._ID + " desc");
+        Cursor cur = cr.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                columns,
+                "width >=? and height>=?",
+                new String[]{"" + AlbumFilter.getInstance(context).getMinWidth(), "" + AlbumFilter.getInstance(context).getMinHeight()},
+                MediaStore.Images.Media._ID + " desc"
+        );
 
+        imageItems.clear();
+        bucketList.clear();
         if (cur != null && cur.moveToFirst()) {
             int photoIDIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
             int photoPathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
@@ -183,7 +170,7 @@ public class AlbumHelper implements IAlbum {
                     .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
             int bucketIdIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
             int picasaIdIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.PICASA_ID);
-
+            int dateModifiedIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED);
             totalNum = cur.getCount();
 
             do {
@@ -195,11 +182,11 @@ public class AlbumHelper implements IAlbum {
                 String bucketName = cur.getString(bucketDisplayNameIndex);
                 String bucketId = cur.getString(bucketIdIndex);
                 String picasaId = cur.getString(picasaIdIndex);
-
-                Log.i(TAG, _id + ", bucketId: " + bucketId + ", picasaId: "
-                        + picasaId + " name:" + name + " path:" + path
-                        + " title: " + title + " size: " + size + " bucket: "
-                        + bucketName + "---");
+                long dateModified = cur.getLong(dateModifiedIndex);
+//                Log.i(TAG, _id + ", bucketId: " + bucketId + ", picasaId: "
+//                        + picasaId + " name:" + name + " path:" + path
+//                        + " title: " + title + " size: " + size + " bucket: "
+//                        + bucketName + "---");
 
                 ImageBucket bucket = bucketList.get(bucketId);
                 if (bucket == null) {
@@ -213,6 +200,7 @@ public class AlbumHelper implements IAlbum {
                 ImageItem imageItem = new ImageItem();
                 imageItem.imageId = _id;
                 imageItem.imagePath = path;
+                imageItem.dateModified = dateModified;
 //                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
                 bucket.path = new File(path).getParentFile().getAbsolutePath();
                 bucket.imageList.add(imageItem);
@@ -390,7 +378,6 @@ public class AlbumHelper implements IAlbum {
      * 取消选中项
      */
     public void reset(List<ImageItem> items) {
-
         for (ImageItem item : items) {
             item.isSelected = false;
         }
@@ -400,9 +387,17 @@ public class AlbumHelper implements IAlbum {
      * 重置项
      */
     public void reset(List<ImageItem> items, boolean flag) {
-
         for (ImageItem item : items) {
             item.isSelected = flag;
         }
     }
+
+    /**
+     * 重置项
+     */
+    public void reset() {
+        imageItems.clear();
+        hasBuildImagesItemList = false;
+    }
+
 }
