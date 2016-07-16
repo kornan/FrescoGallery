@@ -7,5 +7,5 @@ import android.view.View;
  * Created by kornan on 16/5/12.
  */
 public interface CameraClickLinstener {
-    void cameraClick(View view);
+    void onCameraClick(View view);
 }

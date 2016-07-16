@@ -125,7 +125,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     }
 
     @Override
-    public void cameraClick(View view) {
+    public void onCameraClick(View view) {
         startTakePhoto();
     }
 
@@ -156,14 +156,18 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("mTakePhotoUri", mTakePhotoUri);
-        outState.putSerializable("selectedItems", (Serializable) selectedItems);
+        outState.putSerializable("selectedItems", (Serializable) imageSelect.getSelectedItems());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mTakePhotoUri = savedInstanceState.getParcelable("mTakePhotoUri");
-        selectedItems = (List<ImageItem>) savedInstanceState.getSerializable("selectedItems");
+        List<ImageItem> selectedItems = (List<ImageItem>) savedInstanceState.getSerializable("selectedItems");
+        if (selectedItems != null && selectedItems.size() > 0) {
+            imageSelect.getSelectedItems().clear();
+            imageSelect.getSelectedItems().addAll(selectedItems);
+        }
     }
 
     protected void takePhotoResult(Intent data, Uri photoUri) {
