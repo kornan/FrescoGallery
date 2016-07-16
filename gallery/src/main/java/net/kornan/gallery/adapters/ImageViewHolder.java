@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class ImageViewHolder extends GalleryViewHolder {
     public SimpleDraweeView imageView;
     public GalleryCheckView checkBox;
+    public boolean isDigit;
 
     public ImageViewHolder(Context context, GalleryAdapter adapter, View itemView, boolean isDigit) {
         super(context, adapter, itemView);
@@ -31,6 +32,7 @@ public class ImageViewHolder extends GalleryViewHolder {
                 .findViewById(R.id.imageView1);
         checkBox = (GalleryCheckView) itemView
                 .findViewById(R.id.checkBox1);
+        this.isDigit = isDigit;
         if (isDigit) {
             checkBox.setBackgroundResource(R.drawable.gallery_checkbox_digit_icon);
         } else {
@@ -68,11 +70,12 @@ public class ImageViewHolder extends GalleryViewHolder {
         });
         checkBox.setOnCheckedChangeListener(null);
         checkBox.setChecked(item.isSelected);
-        if(item.isSelected){
+        if (item.isSelected && isDigit) {
             checkBox.setText(String.valueOf(item.selectedIndex));
-        }else{
+        } else {
             checkBox.setText("");
         }
+
 
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -90,7 +93,7 @@ public class ImageViewHolder extends GalleryViewHolder {
                     item.selectedIndex = adapter.getSelectedItems().size();
                     adapter.getSelectedItems().add(item);
                 } else {
-                    item.selectedIndex=-1;
+                    item.selectedIndex = -1;
                     adapter.getSelectedItems().remove(item);
 //                    adapter.getSelectedItems().remove()
                 }

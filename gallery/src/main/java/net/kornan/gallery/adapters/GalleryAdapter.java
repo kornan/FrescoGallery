@@ -48,16 +48,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
             View button = itemLayout.findViewById(R.id.ibtn_take_phone);
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(mWidth, mWidth);
             button.setLayoutParams(lp);
-
-//            View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_take_phone_item, null);
             return new CameraViewHolder(context, this, itemLayout);
         } else {
             View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_image_item, null);
             View button = itemLayout.findViewById(R.id.layout_image);
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(mWidth, mWidth);
             button.setLayoutParams(lp);
-
-//            View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_image_item, null);
             return new ImageViewHolder(context, this, itemLayout, isDigit);
         }
     }

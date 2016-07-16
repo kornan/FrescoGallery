@@ -21,8 +21,8 @@
             android:id="@+id/imageSelect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            gallery:isDigit="true"
-            gallery:multiSelect="false"
+            gallery:isDigit="false"
+            gallery:multiSelect="true"
             gallery:optionalMax="5" />
 
         <RelativeLayout
