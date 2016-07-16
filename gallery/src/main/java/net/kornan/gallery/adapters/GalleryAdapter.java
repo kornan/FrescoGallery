@@ -2,9 +2,11 @@ package net.kornan.gallery.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
@@ -26,6 +28,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
     private boolean isDigit;
 
     public CameraClickLinstener cameraClickLinstener;
+    private DisplayMetrics displayMetrics;
+    private int mWidth;
 
     public GalleryAdapter(Context context, List<ImageItem> list, int max, boolean multiSelect, boolean isDigit, List<ImageItem> selectedItems) {
         this.context = context;
@@ -34,15 +38,26 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         this.multiSelect = multiSelect;
         this.isDigit = isDigit;
         this.selectedItems = selectedItems;
+        mWidth = context.getResources().getDisplayMetrics().widthPixels / 3;
     }
 
     @Override
     public GalleryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == ImageItem.Type.CAMERA.ordinal()) {
             View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_take_phone_item, null);
+            View button = itemLayout.findViewById(R.id.ibtn_take_phone);
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(mWidth, mWidth);
+            button.setLayoutParams(lp);
+
+//            View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_take_phone_item, null);
             return new CameraViewHolder(context, this, itemLayout);
         } else {
             View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_image_item, null);
+            View button = itemLayout.findViewById(R.id.layout_image);
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(mWidth, mWidth);
+            button.setLayoutParams(lp);
+
+//            View itemLayout = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_image_item, null);
             return new ImageViewHolder(context, this, itemLayout, isDigit);
         }
     }
@@ -55,7 +70,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
             for (ImageItem imageItem : selectedItems) {
                 if (dataList.get(position).imageId.equals(imageItem.imageId)) {
                     dataList.remove(position);
-                    dataList.add(position,imageItem);
+                    dataList.add(position, imageItem);
                     break;
                 }
             }

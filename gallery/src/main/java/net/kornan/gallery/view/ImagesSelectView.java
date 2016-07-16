@@ -40,6 +40,7 @@ public class ImagesSelectView extends RelativeLayout {
     private boolean isDigit = true;
     private List<ImageItem> selectedItems = new ArrayList<>();
     private ImageBucket currentBucket;
+
     public ImagesSelectView(Context context) {
         super(context);
         init(context, null);
@@ -90,6 +91,7 @@ public class ImagesSelectView extends RelativeLayout {
 
         LayoutInflater.from(context).inflate(R.layout.gridview_images_layout, this);
         gridView = (RecyclerView) findViewById(R.id.image_grid);
+        gridView.addItemDecoration(new DividerGridItemDecoration(context));
         helper = AlbumHelper.getHelper();
         helper.init(getContext().getApplicationContext());
         dataList.addAll(helper.getAllImagesItemList());

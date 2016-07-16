@@ -52,7 +52,7 @@ public class GalleryHelper {
             @Override
             public void trim(MemoryTrimType trimType) {
                 final double suggestedTrimRatio = trimType.getSuggestedTrimRatio();
-                Log.d("fresco", String.format("onCreate suggestedTrimRatio : %d", suggestedTrimRatio));
+                Log.d("fresco", String.format("onCreate suggestedTrimRatio : %f", suggestedTrimRatio));
                 if (MemoryTrimType.OnCloseToDalvikHeapLimit.getSuggestedTrimRatio() == suggestedTrimRatio
                         || MemoryTrimType.OnSystemLowMemoryWhileAppInBackground.getSuggestedTrimRatio() == suggestedTrimRatio
                         || MemoryTrimType.OnSystemLowMemoryWhileAppInForeground.getSuggestedTrimRatio() == suggestedTrimRatio
