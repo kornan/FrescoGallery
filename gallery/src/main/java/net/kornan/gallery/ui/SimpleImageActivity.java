@@ -16,10 +16,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import net.kornan.gallery.R;
+import net.kornan.gallery.adapters.GalleryAdapter;
 import net.kornan.gallery.factory.AlbumHelper;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
-import net.kornan.gallery.view.CameraClickLinstener;
 import net.kornan.gallery.view.GalleryListener;
 import net.kornan.gallery.view.GalleryPopupWindow;
 import net.kornan.gallery.view.GalleryToolbar;
@@ -29,13 +29,14 @@ import net.kornan.tools.MediaUtils;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 相册选择实现类
  * Created by kornan on 16/5/19.
  */
-public class SimpleImageActivity extends AppCompatActivity implements GalleryListener, CameraClickLinstener, GalleryToolbar.GalleryToolbarLinstener {
+public class SimpleImageActivity extends AppCompatActivity implements GalleryListener, GalleryAdapter.OnGalleryLinstener, GalleryToolbar.GalleryToolbarLinstener {
     public final String TAG = getClass().getSimpleName();
     public final static String SELECT_IMAGE_KEY = "SELECT_IMAGES";
     public final static String SELECT_IMAGE_DATA = "SELECT_IMAGE_DATA";
@@ -70,7 +71,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
         initData();
 
         galleryToolbar.setGalleryToolbarLinstener(this);
-        imageSelect.setCameraClickLinstener(this);
+        imageSelect.setOnGalleryLinstener(this);
 
         imageSelect.getSelectedItems().clear();
         imageSelect.getSelectedItems().addAll(selectedItems);
@@ -142,6 +143,20 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     @Override
     public void onCameraClick(View view) {
         startTakePhoto();
+    }
+
+    @Override
+    public void itemClick(View arg0, int arg1) {
+//        PreviewData data = new PreviewData();
+//        ArrayList<ImageItem> imgs = new ArrayList<>();
+//        imgs.add(item);
+//        data.setImageItems(imgs);
+//        SimplePreviewActivity.launch(this, data);
+    }
+
+    @Override
+    public void itemCheck(View arg0, int arg1) {
+
     }
 
     /**

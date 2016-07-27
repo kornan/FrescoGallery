@@ -1,9 +1,6 @@
 package net.kornan.gallery.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -13,21 +10,20 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
-import net.kornan.gallery.factory.PreviewData;
-import net.kornan.gallery.ui.SimpleImageActivity;
-import net.kornan.gallery.ui.SimplePreviewActivity;
 import net.kornan.gallery.view.GalleryCheckView;
-
-import java.util.ArrayList;
 
 /**
  * 相册胶卷 ViewHolder
  * Created by kornan on 16/5/11.
  */
-public class ImageViewHolder extends GalleryViewHolder {
+public class ImageViewHolder extends GalleryViewHolder implements CompoundButton.OnCheckedChangeListener {
+
     public SimpleDraweeView imageView;
     public GalleryCheckView checkBox;
     public boolean isDigit;
+
+    private ImageItem imageItem;
+    private int position;
 
     public ImageViewHolder(Context context, GalleryAdapter adapter, View itemView, boolean isDigit) {
         super(context, adapter, itemView);
@@ -46,6 +42,9 @@ public class ImageViewHolder extends GalleryViewHolder {
 
     @Override
     public void bindData(final ImageItem item, final int position) {
+        this.position = position;
+        this.imageItem = item;
+
         String path;
         if (!TextUtils.isEmpty(item.thumbnailPath)) {
             path = item.thumbnailPath;
@@ -57,17 +56,7 @@ public class ImageViewHolder extends GalleryViewHolder {
             setImageViewForCache(item.imagePath, imageView);
         }
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                PreviewData data = new PreviewData();
-                ArrayList<ImageItem> imgs = new ArrayList<>();
-                imgs.add(item);
-                data.setImageItems(imgs);
-                SimplePreviewActivity.launch(v.getContext(), data);
-            }
-        });
+        imageView.setOnClickListener(this);
         checkBox.setOnCheckedChangeListener(null);
         checkBox.setChecked(item.isSelected);
         if (item.isSelected && isDigit) {
@@ -76,31 +65,7 @@ public class ImageViewHolder extends GalleryViewHolder {
             checkBox.setText("");
         }
 
-
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView,
-                                         boolean isChecked) {
-                // TODO Auto-generated method stub
-                if (isChecked) {
-                    if (adapter.getSelectedItems().size() >= adapter.getMax()) {
-                        Toast.makeText(context,
-                                String.format(context.getString(R.string.gallery_most_prompt), adapter.getMax()), Toast.LENGTH_LONG).show();
-                        checkBox.setChecked(false);
-                        return;
-                    }
-                    item.selectedIndex = adapter.getSelectedItems().size();
-                    adapter.getSelectedItems().add(item);
-                } else {
-                    item.selectedIndex = -1;
-                    adapter.getSelectedItems().remove(item);
-//                    adapter.getSelectedItems().remove()
-                }
-                adapter.refreshIndex();
-                item.isSelected = isChecked;
-            }
-        });
+        checkBox.setOnCheckedChangeListener(this);
         if (!adapter.isMultiSelect()) {
             checkBox.setVisibility(View.GONE);
         } else {
@@ -109,8 +74,39 @@ public class ImageViewHolder extends GalleryViewHolder {
     }
 
     @Override
-    public void onClick(View v) {
+    public void onCheckedChanged(CompoundButton buttonView,
+                                 boolean isChecked) {
+        // TODO Auto-generated method stub
+        if (isChecked) {
+            if (adapter.getSelectedItems().size() >= adapter.getMax()) {
+                Toast.makeText(context,
+                        String.format(context.getString(R.string.gallery_most_prompt), adapter.getMax()), Toast.LENGTH_LONG).show();
+                checkBox.setChecked(false);
+                return;
+            }
+            imageItem.selectedIndex = adapter.getSelectedItems().size();
+            adapter.getSelectedItems().add(imageItem);
+        } else {
+            imageItem.selectedIndex = -1;
+            adapter.getSelectedItems().remove(imageItem);
+//                    adapter.getSelectedItems().remove()
+        }
+        adapter.refreshIndex();
+        imageItem.isSelected = isChecked;
+
 
     }
 
+    @Override
+    public void onClick(View v) {
+        if (adapter.onGalleryLinstener != null) {
+            adapter.onGalleryLinstener.itemClick(v, position);
+        }
+
+//        PreviewData data = new PreviewData();
+//        ArrayList<ImageItem> imgs = new ArrayList<>();
+//        imgs.add(item);
+//        data.setImageItems(imgs);
+//        SimplePreviewActivity.launch(v.getContext(), data);
+    }
 }

@@ -61,8 +61,8 @@ public class ImagesSelectView extends RelativeLayout {
         return adapter;
     }
 
-    public void setCameraClickLinstener(CameraClickLinstener cameraClickLinstener) {
-        adapter.setCameraClickLinstener(cameraClickLinstener);
+    public void setOnGalleryLinstener(GalleryAdapter.OnGalleryLinstener onGalleryLinstener) {
+        adapter.setOnGalleryLinstener(onGalleryLinstener);
     }
 
     public List<ImageItem> getDataList() {

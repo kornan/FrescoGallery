@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:theme="@style/ToolbarTheme" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -20,15 +20,31 @@
         <net.kornan.gallery.view.GalleryViewPager
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.9" />
+            android:layout_height="match_parent" />
 
-        <!--<net.kornan.gallery.view.GalleryRecyclerView-->
-            <!--android:id="@+id/gallery_list"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="0dp"-->
-            <!--android:layout_weight="0.1" />-->
-    </LinearLayout>
+        <RelativeLayout
+            android:background="#22FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true">
+
+            <CheckBox
+                android:id="@+id/cb_image"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:shadowRadius="45"
+                android:shadowColor="#585858"
+                android:gravity="center"
+                android:text="@string/gallery_check_text"
+                android:textColor="#585858" />
+        </RelativeLayout>
+    </RelativeLayout>
 
 
 </LinearLayout>

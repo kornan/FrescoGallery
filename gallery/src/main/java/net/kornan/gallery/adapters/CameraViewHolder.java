@@ -36,8 +36,8 @@ public class CameraViewHolder extends GalleryViewHolder {
                     "最多选择" + adapter.getMax() + "张图片", Toast.LENGTH_LONG).show();
             return;
         }
-        if (adapter.cameraClickLinstener != null) {
-            adapter.cameraClickLinstener.onCameraClick(itemView);
+        if (adapter.onGalleryLinstener != null) {
+            adapter.onGalleryLinstener.onCameraClick(itemView);
         }
     }
 }

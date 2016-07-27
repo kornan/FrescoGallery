@@ -17,6 +17,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout.LayoutParams;
 
@@ -37,17 +39,16 @@ import java.util.ArrayList;
  * 本地图片预览
  */
 public class SimplePreviewActivity extends Activity implements OnPageChangeListener, GalleryToolbar.GalleryToolbarLinstener {
-    private final static int WIDTH = 480;
-    private final static int HEIGHT = 800;
-
     public final static String PREVIEW_TAG = "paths";
 
     private GalleryToolbar toolbar;
-
+    private CheckBox cb_image;
     private ViewPager pager;
     private PreViewPageAdapter adapter;
+
     private int position = 0;
-    public ArrayList<ImageItem> drr = new ArrayList<>();
+
+    private ArrayList<ImageItem> drr = new ArrayList<>();
 
 
     @Override
@@ -55,19 +56,25 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_simple_preview);
+
+        toolbar = (GalleryToolbar) findViewById(R.id.gallery_toolbar);
+        pager = (ViewPager) findViewById(R.id.viewpager);
+        cb_image = (CheckBox) findViewById(R.id.cb_image);
+
         initView();
         initData();
     }
 
     private void initView() {
-        toolbar = (GalleryToolbar) findViewById(R.id.gallery_toolbar);
         toolbar.setGalleryToolbarLinstener(this);
-
-//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-//        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-
-        pager = (ViewPager) findViewById(R.id.viewpager);
         pager.addOnPageChangeListener(this);
+        cb_image.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.e("fresco", position + " loadImage " + isChecked);
+                drr.get(position).isSelected = isChecked;
+            }
+        });
     }
 
     private void initData() {
@@ -94,7 +101,7 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         }
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
-
+        cb_image.setChecked(drr.get(position).isSelected);
         toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
     }
 
@@ -103,12 +110,6 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         intent.putExtra(PREVIEW_TAG, drr);
         setResult(RESULT_OK, intent);
         finish();
-    }
-
-    @Override
-    protected void onDestroy() {
-        System.gc();
-        super.onDestroy();
     }
 
     private void deleteImage() {
@@ -149,6 +150,8 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     public void onPageSelected(int arg0) {
         // TODO Auto-generated method stub
         position = arg0;
+        Log.e("fresco", "loadImage " + arg0);
+        cb_image.setChecked(drr.get(arg0).isSelected);
         if (adapter.getCount() > 0) {
             toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
         }
@@ -231,8 +234,10 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
 
     }
 
-    public static void launch(Activity activity, PreviewData previewData) {
-        launch(activity.getBaseContext(), previewData);
+    public static void launch(Activity activity, PreviewData previewData, int requestCode) {
+        Intent intent = new Intent(activity, SimplePreviewActivity.class);
+        intent.putExtra(SimplePreviewActivity.PREVIEW_TAG, previewData);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     public static void launch(Context activity, PreviewData previewData) {

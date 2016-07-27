@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.ImageItem;
-import net.kornan.gallery.view.CameraClickLinstener;
 
 import java.util.List;
 
@@ -27,7 +26,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
     private boolean multiSelect;
     private boolean isDigit;
 
-    public CameraClickLinstener cameraClickLinstener;
+    public OnGalleryLinstener onGalleryLinstener;
+
     private DisplayMetrics displayMetrics;
     private int mWidth;
 
@@ -94,8 +94,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         return count;
     }
 
-    public void setCameraClickLinstener(CameraClickLinstener cameraClickLinstener) {
-        this.cameraClickLinstener = cameraClickLinstener;
+    public void setOnGalleryLinstener(OnGalleryLinstener onGalleryLinstener) {
+        this.onGalleryLinstener = onGalleryLinstener;
     }
 
     public boolean isMultiSelect() {
@@ -129,4 +129,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryViewHolder> {
         notifyDataSetChanged();
     }
 
+
+    public static interface OnGalleryLinstener {
+        void onCameraClick(View view);
+
+        void itemClick(View arg0, int arg1);
+
+        void itemCheck(View arg0, int arg1);
+    }
 }
