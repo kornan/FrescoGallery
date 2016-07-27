@@ -7,13 +7,11 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.facebook.common.references.CloseableReference;
 import com.facebook.datasource.DataSource;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.backends.pipeline.PipelineDraweeController;
 import com.facebook.drawee.controller.AbstractDraweeController;
 import com.facebook.drawee.controller.BaseControllerListener;
 import com.facebook.drawee.generic.GenericDraweeHierarchy;
@@ -28,6 +26,8 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
+import net.kornan.tools.ImageUtils;
+
 import uk.co.senab.photoview.PhotoView;
 
 /**
@@ -35,10 +35,20 @@ import uk.co.senab.photoview.PhotoView;
  * @date: 2016-03-31 16:20
  */
 public class GalleryPhotoView extends PhotoView {
+    private Uri uri;
+    private String path_tag;
+
+    private PhotoControllerListener photoControllerListener;
+    private int degree = 0;
+
     private DraweeHolder<GenericDraweeHierarchy> mDraweeHolder;
 
     public GalleryPhotoView(Context context) {
         this(context, null);
+    }
+
+    public void setPhotoControllerListener(PhotoControllerListener photoControllerListener) {
+        this.photoControllerListener = photoControllerListener;
     }
 
     @Override
@@ -123,6 +133,8 @@ public class GalleryPhotoView extends PhotoView {
      * @param options
      */
     public void setImageUri(Uri uri, Uri lowResUri, ResizeOptions options) {
+        setUriPath(uri);
+
         ImagePipeline imagePipeline = Fresco.getImagePipeline();
         ImageRequest imageRequest = buildImageRequest(uri, options);
         ImageRequest lowResImageRequest = buildImageRequest(lowResUri, null);
@@ -133,6 +145,12 @@ public class GalleryPhotoView extends PhotoView {
         setImageDrawable(mDraweeHolder.getTopLevelDrawable());
     }
 
+    private void setUriPath(Uri uri) {
+        this.uri = uri;
+        this.path_tag = uri.toString();
+        degree=ImageUtils.getBitmapDegree(uri.getPath());
+    }
+
     /**
      * 加载图片
      *
@@ -140,9 +158,13 @@ public class GalleryPhotoView extends PhotoView {
      * @param options
      */
     public void setImageUri(Uri uri, ResizeOptions options) {
-        AbstractDraweeController controller = (AbstractDraweeController) buildDraweeController(buildImageRequest(uri, options), null, Fresco.getImagePipeline());
-        mDraweeHolder.setController(controller);
-        setImageDrawable(mDraweeHolder.getTopLevelDrawable());
+        setUriPath(uri);
+
+        if (getTag() == null || !String.valueOf(getTag()).equals(path_tag)) {
+            AbstractDraweeController controller = (AbstractDraweeController) buildDraweeController(buildImageRequest(uri, options), null, Fresco.getImagePipeline());
+            mDraweeHolder.setController(controller);
+            setImageDrawable(mDraweeHolder.getTopLevelDrawable());
+        }
     }
 
 
@@ -159,15 +181,14 @@ public class GalleryPhotoView extends PhotoView {
         final DataSource<CloseableReference<CloseableImage>> dataSource = imagePipeline.fetchDecodedImage(imageRequest, this);
         return Fresco.newDraweeControllerBuilder()
                 .setLowResImageRequest(lowResImageRequest)
+                .setAutoPlayAnimations(true)
                 .setImageRequest(imageRequest)
                 .setOldController(mDraweeHolder.getController())
                 .setRetainImageOnFailure(true)
                 .setControllerListener(new BaseControllerListener<ImageInfo>() {
                     @Override
                     public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
-                        Log.e("setControllerListener", "onFinalImageSet " + id);
                         super.onFinalImageSet(id, imageInfo, animatable);
-
                         CloseableReference<CloseableImage> imageCloseableReference = null;
                         try {
                             imageCloseableReference = dataSource.getResult();
@@ -177,7 +198,11 @@ public class GalleryPhotoView extends PhotoView {
                                     CloseableStaticBitmap closeableStaticBitmap = (CloseableStaticBitmap) image;
                                     final Bitmap bitmap = closeableStaticBitmap.getUnderlyingBitmap();
                                     if (bitmap != null) {
-                                        setImageBitmap(bitmap);
+                                        if (degree != 0) {
+                                            setImageBitmap(ImageUtils.adjustRotation(bitmap, degree));
+                                        } else {
+                                            setImageBitmap(bitmap);
+                                        }
                                         setScaleType(ScaleType.FIT_CENTER);
                                     }
                                 }
@@ -186,13 +211,33 @@ public class GalleryPhotoView extends PhotoView {
                             dataSource.close();
                             CloseableReference.closeSafely(imageCloseableReference);
                         }
+                        setTag(path_tag);
+                        if (photoControllerListener != null) {
+                            photoControllerListener.onFinalImageSet(id);
+                        }
                     }
 
                     @Override
                     public void onFailure(String id, Throwable throwable) {
-                        Log.e("setControllerListener", "onFailure " + id);
-//                        Toast.makeText(getContext(), "下载图片失败", Toast.LENGTH_SHORT).show();
+                        setTag(null);
+                        Fresco.getImagePipeline().evictFromCache(uri);
+                        photoControllerListener.onFailure(id);
+                    }
+
+                    @Override
+                    public void onRelease(String id) {
+                        super.onRelease(id);
+                        setTag(null);
+                        //需判断内存
+                        Fresco.getImagePipeline().evictFromCache(uri);
+//                        Fresco.getImagePipeline().evictFromMemoryCache(uri);
                     }
                 }).build();
+    }
+
+    public interface PhotoControllerListener {
+        void onFailure(String id);
+
+        void onFinalImageSet(String id);
     }
 }

@@ -251,48 +251,25 @@ public class ImageUtils {
         }
     }
 
-   /* public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
-
-        Matrix matrix = new Matrix();
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.setScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.setRotate(180);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                matrix.setRotate(90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-                matrix.setRotate(-90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.setRotate(-90);
-                break;
-            default:
-                return bitmap;
-        }
+    /**
+     * 旋转 Bitmap
+     *
+     * @param bm                Bitmap
+     * @param orientationDegree 度数
+     * @return 旋转后的Bitmap
+     */
+    public static Bitmap adjustRotation(Bitmap bm, final int orientationDegree) {
         try {
-            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            bitmap.recycle();
-            return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
+            if (orientationDegree > 0) {
+                Matrix matrix = new Matrix();
+                matrix.postRotate(orientationDegree);
+                bm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            return null;
+        } catch (Error error) {
+            error.printStackTrace();
         }
-    }*/
-
+        return bm;
+    }
 }

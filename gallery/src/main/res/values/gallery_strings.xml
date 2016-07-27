@@ -4,4 +4,6 @@
     <string name="gallery_atlas">图集</string>
     <string name="gallery_back">返回</string>
     <string name="gallery_delete">删除</string>
+    
+    <string name="gallery_most_prompt">最多选择%d张图片</string>
 </resources>

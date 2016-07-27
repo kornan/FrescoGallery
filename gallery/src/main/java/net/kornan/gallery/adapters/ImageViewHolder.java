@@ -2,6 +2,7 @@ package net.kornan.gallery.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -86,7 +87,7 @@ public class ImageViewHolder extends GalleryViewHolder {
                 if (isChecked) {
                     if (adapter.getSelectedItems().size() >= adapter.getMax()) {
                         Toast.makeText(context,
-                                "最多选择" + adapter.getMax() + "张图片", Toast.LENGTH_LONG).show();
+                                String.format(context.getString(R.string.gallery_most_prompt),adapter.getMax()), Toast.LENGTH_LONG).show();
                         checkBox.setChecked(false);
                         return;
                     }
