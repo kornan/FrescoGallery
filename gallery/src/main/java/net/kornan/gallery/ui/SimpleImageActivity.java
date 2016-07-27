@@ -1,6 +1,7 @@
 package net.kornan.gallery.ui;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaScannerConnection;
@@ -92,7 +93,8 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
                 }
             }
         });
-        btnMenu.setText("所有图片");
+        btnMenu.setText(R.string.gallery_all_image);
+
         Log.d(TAG, "onCreate " + selectedItems);
 //        if(selectedItems==null){
 //            selectedItems = imageSelect.getSelectedItems();
@@ -143,7 +145,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
      */
     public void startTakePhoto() {
         if (!FileUtils.existSDCard()) {
-            Toast.makeText(getBaseContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), getString(R.string.gallery_not_present_sd), Toast.LENGTH_SHORT).show();
             return;
         }
         //到onActivityResult时mTakePhotoUri可能会被释放,重写onSaveInstanceState
@@ -206,8 +208,6 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
             } else {
                 imageSelect.getDataList().add(imageItem);
             }
-            //1:添加到所有相册;
-            //2:以及添加到对应图集(未处理)
             imageItem.isSelected = true;
             imageItem.selectedIndex = imageSelect.getAdapter().getSelectedItems().size() + 1;
             imageSelect.getAdapter().getSelectedItems().add(imageItem);
@@ -243,7 +243,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
             intent.putExtra(SimplePreviewActivity.PREVIEW_TAG, data);
             startActivity(intent);
         } else {
-            Toast.makeText(this, "请选择图片！", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.gallery_select_image), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -271,7 +271,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
      */
     public static void launch(Activity activity, @Nullable List<ImageItem> selectImages, int max, int minWidth, int minHeight, boolean multi, int requestCode) {
         if (!FileUtils.existSDCard()) {
-            Toast.makeText(activity, "SD卡不存在", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.gallery_not_present_sd), Toast.LENGTH_SHORT).show();
             return;
         }
         AlbumHelper helper = AlbumHelper.getHelper();
@@ -300,6 +300,8 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     public static void launch(Fragment fragment, @Nullable List<ImageItem> selectImages, int max, int minWidth, int minHeight, boolean multi, int requestCode) {
         if (!FileUtils.existSDCard()) {
             Toast.makeText(fragment.getContext(), "SD卡不存在", Toast.LENGTH_SHORT).show();
+            Toast.makeText(fragment.getContext(), fragment.getString(R.string.gallery_not_present_sd), Toast.LENGTH_SHORT).show();
+
             return;
         }
         AlbumHelper helper = AlbumHelper.getHelper();

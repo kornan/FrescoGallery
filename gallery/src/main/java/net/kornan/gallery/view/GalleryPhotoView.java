@@ -148,7 +148,7 @@ public class GalleryPhotoView extends PhotoView {
     private void setUriPath(Uri uri) {
         this.uri = uri;
         this.path_tag = uri.toString();
-        degree=ImageUtils.getBitmapDegree(uri.getPath());
+        degree = ImageUtils.getBitmapDegree(uri.getPath());
     }
 
     /**
@@ -221,7 +221,9 @@ public class GalleryPhotoView extends PhotoView {
                     public void onFailure(String id, Throwable throwable) {
                         setTag(null);
                         Fresco.getImagePipeline().evictFromCache(uri);
-                        photoControllerListener.onFailure(id);
+                        if (photoControllerListener != null) {
+                            photoControllerListener.onFailure(id);
+                        }
                     }
 
                     @Override
