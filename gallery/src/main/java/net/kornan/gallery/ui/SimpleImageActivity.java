@@ -147,11 +147,11 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
 
     @Override
     public void itemClick(View arg0, int arg1) {
-//        PreviewData data = new PreviewData();
-//        ArrayList<ImageItem> imgs = new ArrayList<>();
-//        imgs.add(item);
-//        data.setImageItems(imgs);
-//        SimplePreviewActivity.launch(this, data);
+        PreviewData data = new PreviewData();
+        ArrayList<ImageItem> imgs = new ArrayList<>();
+        imgs.add(imageSelect.getDataList().get(arg1));
+        data.setImageItems(imgs);
+        SimplePreviewActivity.launch(this, data);
     }
 
     @Override
