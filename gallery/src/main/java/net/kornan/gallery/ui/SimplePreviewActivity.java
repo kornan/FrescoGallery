@@ -1,11 +1,15 @@
 package net.kornan.gallery.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +27,7 @@ import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.view.GalleryPhotoView;
 import net.kornan.gallery.view.GalleryToolbar;
+import net.kornan.gallery.view.SimplePreviewItem;
 import net.kornan.tools.ImageUtils;
 import net.kornan.tools.MediaUtils;
 
@@ -36,7 +41,6 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     private final static int HEIGHT = 800;
 
     public final static String PREVIEW_TAG = "paths";
-    public final static String PREVIEW_TITLE_BAR = "title_bar";
 
     private GalleryToolbar toolbar;
 
@@ -45,13 +49,22 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     private int position = 0;
     public ArrayList<ImageItem> drr = new ArrayList<>();
 
-    private void initView() {
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setContentView(R.layout.activity_simple_preview);
+        initView();
+        initData();
+    }
+
+    private void initView() {
         toolbar = (GalleryToolbar) findViewById(R.id.gallery_toolbar);
         toolbar.setGalleryToolbarLinstener(this);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+//        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
         pager = (ViewPager) findViewById(R.id.viewpager);
         pager.addOnPageChangeListener(this);
@@ -60,13 +73,9 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     private void initData() {
         try {
             PreviewData previewData = (PreviewData) getIntent().getSerializableExtra(PREVIEW_TAG);
-            boolean isCloseTitlebar = getIntent().getBooleanExtra(PREVIEW_TITLE_BAR, false);
-//            if (isCloseTitlebar) {
-//                rl_titleBar.setVisibility(View.GONE);
-//            }
+
             if (previewData != null) {
                 position = previewData.getIndex();
-//                btn_photo_del.setVisibility(previewData.isDelete() ? View.VISIBLE : View.GONE);
                 if (previewData.isDelete()) {
                     toolbar.setType(GalleryToolbar.TYPE_EDIT);
                 }
@@ -77,15 +86,15 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         }
 
         adapter = new PreViewPageAdapter();
+        SimplePreviewItem item;
         for (int i = 0; i < drr.size(); i++) {
-            GalleryPhotoView imageView = new GalleryPhotoView(this);
-            imageView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            adapter.add(imageView);
+            item = new SimplePreviewItem(this);
+            item.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            adapter.add(item);
         }
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
+
         toolbar.setTitle(String.valueOf(position + 1 + " / " + adapter.getCount()));
     }
 
@@ -100,15 +109,6 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
     protected void onDestroy() {
         System.gc();
         super.onDestroy();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setContentView(R.layout.activity_simple_preview);
-        initView();
-        initData();
     }
 
     private void deleteImage() {
@@ -128,32 +128,14 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
         }
     }
 
-    private void loadImage(int position, boolean isDefalut) {
-        DisplayMetrics displayMetrics = MediaUtils.getScreenDimen(this);
-        Uri thumbUri = ImageUtils.getUri(drr.get(position).thumbnailPath);
-        Uri bigUri = ImageUtils.getUri(drr.get(position).imagePath);
-
-        if (isDefalut) {
-            adapter.getView(position).setImageUri(bigUri, new ResizeOptions(WIDTH, HEIGHT));
-
-        } else {
-            adapter.getView(position).setImageUri(bigUri, null);
-//            adapter.getView(position).setImageUri(bigUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
-//            adapter.getView(position).setImageURI(bigUri);
-        }
-        //fresco:渐进式JPEG图仅仅支持网络图
-//        if (thumbUri != null) {
-//            adapter.getView(position).setImageUri(bigUri, thumbUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
-//        } else {
-//            adapter.getView(position).setImageUri(bigUri, new ResizeOptions(displayMetrics.widthPixels, displayMetrics.heightPixels));
-//        }
+    private void loadImage(int position) {
+        adapter.getView(position).loadImage(drr.get(position));
     }
-
 
     @Override
     public void onPageScrollStateChanged(int arg0) {
         // TODO Auto-generated method stub
-        if(ViewPager.SCROLL_STATE_IDLE==arg0){
+        if (ViewPager.SCROLL_STATE_IDLE == arg0) {
             adapter.notifyDataSetChanged();
         }
     }
@@ -197,17 +179,17 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
 
     class PreViewPageAdapter extends PagerAdapter {
 
-        private ArrayList<GalleryPhotoView> listViews = new ArrayList<>();
+        private ArrayList<SimplePreviewItem> listViews = new ArrayList<>();
 
 
         public PreViewPageAdapter() {
         }
 
-        public GalleryPhotoView getView(int position) {
+        public SimplePreviewItem getView(int position) {
             return listViews.get(position);
         }
 
-        public void add(GalleryPhotoView view) {
+        public void add(SimplePreviewItem view) {
             listViews.add(view);
         }
 
@@ -234,8 +216,8 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
 
         @Override
         public Object instantiateItem(ViewGroup arg0, int arg1) {
+            loadImage(arg1);
             try {
-                loadImage(arg1, false);
                 arg0.addView(listViews.get(arg1 % getCount()), 0);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -247,5 +229,15 @@ public class SimplePreviewActivity extends Activity implements OnPageChangeListe
             return arg0 == arg1;
         }
 
+    }
+
+    public static void launch(Activity activity, PreviewData previewData) {
+        launch(activity.getBaseContext(), previewData);
+    }
+
+    public static void launch(Context activity, PreviewData previewData) {
+        Intent intent = new Intent(activity, SimplePreviewActivity.class);
+        intent.putExtra(SimplePreviewActivity.PREVIEW_TAG, previewData);
+        activity.startActivity(intent);
     }
 }

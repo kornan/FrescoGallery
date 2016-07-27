@@ -26,7 +26,8 @@ import java.util.List;
  * @date: 2016-04-19 11:59
  */
 public class ImagesSelectView extends RelativeLayout {
-
+    protected static final int DEFAULT_COLUMNS = 3;
+    protected static final int DEFAULT_SELECT_MAX = 9;
     protected List<ImageItem> dataList = new ArrayList<>();
     protected RecyclerView gridView;
     protected GalleryAdapter adapter;
@@ -86,7 +87,7 @@ public class ImagesSelectView extends RelativeLayout {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ImagesSelectView);
         multiSelect = typedArray.getBoolean(R.styleable.ImagesSelectView_multiSelect, true);
         isDigit = typedArray.getBoolean(R.styleable.ImagesSelectView_isDigit, true);
-        selectMax = typedArray.getInt(R.styleable.ImagesSelectView_optionalMax, 9);
+        selectMax = typedArray.getInt(R.styleable.ImagesSelectView_optionalMax, DEFAULT_SELECT_MAX);
         typedArray.recycle();
 
         LayoutInflater.from(context).inflate(R.layout.gridview_images_layout, this);
@@ -95,7 +96,7 @@ public class ImagesSelectView extends RelativeLayout {
         helper = AlbumHelper.getHelper();
         helper.init(getContext().getApplicationContext());
         dataList.addAll(helper.getAllImagesItemList());
-        gridView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        gridView.setLayoutManager(new GridLayoutManager(getContext(), DEFAULT_COLUMNS));
         adapter = new GalleryAdapter(getContext(), dataList, selectMax, multiSelect, isDigit, selectedItems);
         gridView.setAdapter(adapter);
         gridView.setItemAnimator(new DefaultItemAnimator());
@@ -125,7 +126,6 @@ public class ImagesSelectView extends RelativeLayout {
             adapter.notifyDataSetChanged();
         }
     }
-
 
     public void destroy() {
         if (helper != null) {

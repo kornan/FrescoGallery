@@ -1,7 +1,6 @@
 package net.kornan.gallery.ui;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaScannerConnection;
@@ -18,7 +17,6 @@ import android.widget.Toast;
 
 import net.kornan.gallery.R;
 import net.kornan.gallery.factory.AlbumHelper;
-import net.kornan.gallery.factory.ImageBucket;
 import net.kornan.gallery.factory.ImageItem;
 import net.kornan.gallery.factory.PreviewData;
 import net.kornan.gallery.view.CameraClickLinstener;
@@ -27,7 +25,6 @@ import net.kornan.gallery.view.GalleryPopupWindow;
 import net.kornan.gallery.view.GalleryToolbar;
 import net.kornan.gallery.view.ImagesSelectView;
 import net.kornan.tools.FileUtils;
-import net.kornan.tools.ImageUtils;
 import net.kornan.tools.MediaUtils;
 
 import java.io.File;
@@ -52,7 +49,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     private GalleryToolbar galleryToolbar;
     private Button btnMenu;
     private View rl_bottm;
-
+    private View fl_content;
     protected Uri mTakePhotoUri;
     protected MediaScannerConnection msc;
     protected GalleryPopupWindow galleryPopupWindow;
@@ -64,7 +61,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_image);
-
+        fl_content = findViewById(R.id.fl_content);
         rl_bottm = findViewById(R.id.rl_bottm);
         btnMenu = (Button) findViewById(R.id.btn_menu);
         galleryToolbar = (GalleryToolbar) findViewById(R.id.gallery_toolbar);
@@ -82,15 +79,7 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (galleryPopupWindow == null) {
-                    galleryPopupWindow = new GalleryPopupWindow().initGallery(SimpleImageActivity.this);
-                    galleryPopupWindow.setGalleryListener(SimpleImageActivity.this);
-                }
-                if (galleryPopupWindow.isShowing()) {
-                    galleryPopupWindow.dismiss();
-                } else {
-                    galleryPopupWindow.show(v);
-                }
+                setSheet(v);
             }
         });
         btnMenu.setText(R.string.gallery_all_image);
@@ -101,6 +90,21 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
 //        }else{
 //            imageSelect.setSelectedItems(selectedItems);
 //        }
+    }
+
+    private void setSheet(View v) {
+        if (galleryPopupWindow == null) {
+            galleryPopupWindow = new GalleryPopupWindow().initGallery(SimpleImageActivity.this);
+            galleryPopupWindow.setGalleryListener(SimpleImageActivity.this);
+        }
+        if (galleryPopupWindow.isShowing()) {
+            galleryPopupWindow.dismiss();
+        } else {
+            galleryPopupWindow.show(v);
+        }
+//        BottomSheetDialog bottomSheet =new  BottomSheetDialog(this);
+//        bottomSheet.show();
+
     }
 
     private void initData() {
@@ -182,7 +186,6 @@ public class SimpleImageActivity extends AppCompatActivity implements GalleryLis
     }
 
     protected void takePhotoResult(Intent data, Uri photoUri) {
-//        ImageUtils.setImageRotate(photoUri.getPath(), 90, displayMetrics.widthPixels, displayMetrics.heightPixels, 100);
 
 //        try {
 //            MediaStore.Images.Media.insertImage(getContentResolver(), photoUri.getPath(), "title", "description");

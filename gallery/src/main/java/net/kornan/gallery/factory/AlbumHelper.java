@@ -146,6 +146,8 @@ public class AlbumHelper implements IAlbum {
 
     private void buildImagesBucketList() {
 
+        getAllThumbnail();
+
         String columns[] = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.PICASA_ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.TITLE,
                 MediaStore.Images.Media.SIZE, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATE_MODIFIED};
@@ -201,7 +203,7 @@ public class AlbumHelper implements IAlbum {
                 imageItem.imageId = _id;
                 imageItem.imagePath = path;
                 imageItem.dateModified = dateModified;
-//                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
+                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
                 bucket.path = new File(path).getParentFile().getAbsolutePath();
                 bucket.imageList.add(imageItem);
                 imageItems.add(imageItem);
@@ -212,10 +214,6 @@ public class AlbumHelper implements IAlbum {
         hasBuildImagesItemList = true;
     }
 
-    @Override
-    public HashMap<String, String> getAllThumbnail() {
-        return null;
-    }
 
     /**
      * 得到图片集
@@ -248,31 +246,31 @@ public class AlbumHelper implements IAlbum {
         datas.add(0, bucket);
     }
 
-//    @Override
-//    public HashMap<String, String> getAllThumbnail() {
-//        String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID,
-//                MediaStore.Images.Thumbnails.DATA};
-//        Cursor cur = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection,
-//                null, null, null);
-//
-//        if (cur != null && cur.moveToFirst()) {
-//            int _id;
-//            int image_id;
-//            String image_path;
-//            int _idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails._ID);
-//            int image_idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
-//            int dataColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
-//
-//            do {
-//                _id = cur.getInt(_idColumn);
-//                image_id = cur.getInt(image_idColumn);
-//                image_path = cur.getString(dataColumn);
-//
-//                thumbnailList.put("" + image_id, image_path);
-//            } while (cur.moveToNext());
-//        }
-//        return thumbnailList;
-//    }
+    @Override
+    public HashMap<String, String> getAllThumbnail() {
+        String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID,
+                MediaStore.Images.Thumbnails.DATA};
+        Cursor cur = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection,
+                null, null, null);
+
+        if (cur != null && cur.moveToFirst()) {
+            int _id;
+            int image_id;
+            String image_path;
+            int _idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails._ID);
+            int image_idColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
+            int dataColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
+            thumbnailList.clear();
+            do {
+                _id = cur.getInt(_idColumn);
+                image_id = cur.getInt(image_idColumn);
+                image_path = cur.getString(dataColumn);
+
+                thumbnailList.put("" + image_id, image_path);
+            } while (cur.moveToNext());
+        }
+        return thumbnailList;
+    }
 //    /**
 //     * Try to return the absolute file path from the given Uri
 //     *
@@ -325,7 +323,7 @@ public class AlbumHelper implements IAlbum {
                         imageItem = new ImageItem();
                         imageItem.imageId = _id;
                         imageItem.imagePath = path;
-//                imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
+//                        imageItem.thumbnailPath = thumbnailList.get(_id);//部分手机没有.thumbnails，或者已经被某些清理软件清除
                     }
                 }
                 cursor.close();

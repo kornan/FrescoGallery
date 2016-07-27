@@ -53,7 +53,6 @@ public class GalleryToolbar extends RelativeLayout implements Toolbar.OnMenuItem
         typedArray.recycle();
         View view = LayoutInflater.from(context).inflate(R.layout.gallery_toolbar, this);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-//        toolbar=(Toolbar) view;
         toolbar.inflateMenu(R.menu.gallery_base_toolbar_menu);
         actionComplete = toolbar.getMenu().findItem(R.id.action_complete);
         actionPreview = toolbar.getMenu().findItem(R.id.action_preview);
@@ -61,7 +60,10 @@ public class GalleryToolbar extends RelativeLayout implements Toolbar.OnMenuItem
         setType(type);
         toolbar.setNavigationOnClickListener(this);
         toolbar.setOnMenuItemClickListener(this);
-//        toolbar.getMenu().getItem(0);
+    }
+
+    public MenuItem getActionComplete() {
+        return actionComplete;
     }
 
     public void setTitle(CharSequence title){

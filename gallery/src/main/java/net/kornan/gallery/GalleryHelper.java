@@ -47,7 +47,6 @@ public class GalleryHelper {
             @Override
             public void trim(MemoryTrimType trimType) {
                 final double suggestedTrimRatio = trimType.getSuggestedTrimRatio();
-                Log.d("fresco", String.format("onCreate suggestedTrimRatio : %f", suggestedTrimRatio));
                 if (MemoryTrimType.OnCloseToDalvikHeapLimit.getSuggestedTrimRatio() == suggestedTrimRatio
                         || MemoryTrimType.OnSystemLowMemoryWhileAppInBackground.getSuggestedTrimRatio() == suggestedTrimRatio
                         || MemoryTrimType.OnSystemLowMemoryWhileAppInForeground.getSuggestedTrimRatio() == suggestedTrimRatio
@@ -59,8 +58,8 @@ public class GalleryHelper {
 
         ImagePipelineConfig config = ImagePipelineConfig.newBuilder(application)
                 .setProgressiveJpegConfig(new SimpleProgressiveJpegConfig())
-                .setDownsampleEnabled(true)//如果false，只支持JPG;
-                .setMainDiskCacheConfig(diskCacheConfig)//设置本地缓存目录
+                .setDownsampleEnabled(true)
+                .setMainDiskCacheConfig(diskCacheConfig)
                 .setMemoryTrimmableRegistry(NoOpMemoryTrimmableRegistry.getInstance())
                 .setEncodedMemoryCacheParamsSupplier(new DefaultEncodedMemoryCacheParamsSupplier())
                 .build();
