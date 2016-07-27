@@ -10,10 +10,6 @@ import android.util.Log;
 
 import com.facebook.drawee.drawable.DrawableUtils;
 
-/**
- * @author: kornan
- * @date: 2016-04-15 10:41
- */
 public class ImageLoadingDrawable extends Drawable {
 
     private Paint mRingBackgroundPaint;

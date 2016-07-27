@@ -180,11 +180,12 @@ public class GalleryPhotoView extends PhotoView {
     private DraweeController buildDraweeController(ImageRequest imageRequest, ImageRequest lowResImageRequest, ImagePipeline imagePipeline) {
         final DataSource<CloseableReference<CloseableImage>> dataSource = imagePipeline.fetchDecodedImage(imageRequest, this);
         return Fresco.newDraweeControllerBuilder()
-                .setLowResImageRequest(lowResImageRequest)
                 .setAutoPlayAnimations(true)
+                .setTapToRetryEnabled(true)
+                .setRetainImageOnFailure(true)
+                .setLowResImageRequest(lowResImageRequest)
                 .setImageRequest(imageRequest)
                 .setOldController(mDraweeHolder.getController())
-                .setRetainImageOnFailure(true)
                 .setControllerListener(new BaseControllerListener<ImageInfo>() {
                     @Override
                     public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
@@ -231,10 +232,12 @@ public class GalleryPhotoView extends PhotoView {
                         super.onRelease(id);
                         setTag(null);
                         //需判断内存
-                        Fresco.getImagePipeline().evictFromCache(uri);
+//                        Fresco.getImagePipeline().evictFromCache(uri);
 //                        Fresco.getImagePipeline().evictFromMemoryCache(uri);
+                        Fresco.getImagePipeline().evictFromDiskCache(uri);
                     }
-                }).build();
+                })
+                .build();
     }
 
     public interface PhotoControllerListener {
