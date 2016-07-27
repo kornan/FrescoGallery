@@ -71,7 +71,6 @@ public class GalleryPhotoView extends PhotoView {
             GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(getResources())
                     .setProgressBarImage(new ImageLoadingDrawable())
                     .setFadeDuration(300)
-//                    .setFailureImage()
                     .build();
             mDraweeHolder = DraweeHolder.create(hierarchy, getContext());
         }
